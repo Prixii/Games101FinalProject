@@ -15,48 +15,48 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="Task_LoopTessellation\Face.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="HalfEdge.cpp">
+    <ClCompile Include="Task_LoopTessellation\HalfEdge.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Face.cpp">
+    <ClCompile Include="Task_LoopTessellation\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
+    <ClCompile Include="Task_LoopTessellation\Model.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Vertex.cpp">
+    <ClCompile Include="Task_LoopTessellation\Tools.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="TwoPointIndex.cpp">
+    <ClCompile Include="Task_LoopTessellation\TwoPointIndex.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="TypeAlias.h">
-      <Filter>头文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Tools.cpp">
+    <ClCompile Include="Task_LoopTessellation\Vertex.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HalfEdge.h">
+    <ClInclude Include="Task_LoopTessellation\TwoPointIndex.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Face.h">
+    <ClInclude Include="Task_LoopTessellation\TypeAlias.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Model.h">
+    <ClInclude Include="Task_LoopTessellation\Vertex.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Vertex.h">
+    <ClInclude Include="Task_LoopTessellation\Face.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="TwoPointIndex.h">
+    <ClInclude Include="Task_LoopTessellation\HalfEdge.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Tools.h">
+    <ClInclude Include="Task_LoopTessellation\Model.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Task_LoopTessellation\Tools.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

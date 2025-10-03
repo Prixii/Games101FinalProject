@@ -129,22 +129,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Face.cpp" />
-    <ClCompile Include="HalfEdge.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="Tools.cpp" />
-    <ClCompile Include="TwoPointIndex.cpp" />
-    <ClCompile Include="TypeAlias.h" />
-    <ClCompile Include="Vertex.cpp" />
+    <ClCompile Include="Task_LoopTessellation\Face.cpp" />
+    <ClCompile Include="Task_LoopTessellation\HalfEdge.cpp" />
+    <ClCompile Include="Task_LoopTessellation\main.cpp" />
+    <ClCompile Include="Task_LoopTessellation\Model.cpp" />
+    <ClCompile Include="Task_LoopTessellation\Tools.cpp" />
+    <ClCompile Include="Task_LoopTessellation\TwoPointIndex.cpp" />
+    <ClCompile Include="Task_LoopTessellation\Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Face.h" />
-    <ClInclude Include="HalfEdge.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="Tools.h" />
-    <ClInclude Include="TwoPointIndex.h" />
-    <ClInclude Include="Vertex.h" />
+    <ClInclude Include="Task_LoopTessellation\Face.h" />
+    <ClInclude Include="Task_LoopTessellation\HalfEdge.h" />
+    <ClInclude Include="Task_LoopTessellation\Model.h" />
+    <ClInclude Include="Task_LoopTessellation\Tools.h" />
+    <ClInclude Include="Task_LoopTessellation\TwoPointIndex.h" />
+    <ClInclude Include="Task_LoopTessellation\TypeAlias.h" />
+    <ClInclude Include="Task_LoopTessellation\Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

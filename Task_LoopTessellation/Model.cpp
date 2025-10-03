@@ -22,6 +22,8 @@ void Model::InitFromObj(const char* filename) {
       ReadFace(sin);
     }
   }
+
+  PrintVertexAndFaces();
 }
 
 void Model::ReadVertex(std::istringstream& sin, std::string s[3]) {
