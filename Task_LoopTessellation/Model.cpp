@@ -43,17 +43,19 @@ void Model::ParseHalfEdge() {
   HalfEdgeIndex half_edge_index = 0;
   for (size_t face_ind = 0; face_ind < face_buffer.size(); face_ind++) {
     auto& vertex_loop = face_buffer[face_ind];
+
     HalfEdgeIndex prev_ind = -1;
     HalfEdgeIndex start_ind = half_edge_index;
+
     for (size_t vert_ind = 0; vert_ind < vertex_loop.size(); vert_ind++) {
       HalfEdge half_edge;
-      half_edge.tail = vertex_loop[vert_ind];
 
+      half_edge.tail = vertex_loop[vert_ind];
       half_edge.face = face_ind;
 
+      // check twin
       auto head_vertex_ind = vertex_loop[(vert_ind + 1) % vertex_loop.size()];
-      auto reverse_edge_key = EdgeKey(
-          head_vertex_ind, half_edge.tail);
+      auto reverse_edge_key = EdgeKey(head_vertex_ind, half_edge.tail);
       if (edge_map.count(reverse_edge_key)) {
         auto twin_index = edge_map[reverse_edge_key];
         auto& twin_edge = half_edge_lib[twin_index];
@@ -66,12 +68,19 @@ void Model::ParseHalfEdge() {
         edge_map[EdgeKey(half_edge.tail, head_vertex_ind)] = half_edge_index;
       }
 
-      half_edge_lib.push_back(half_edge);
-
+      // set next for previous edge
       if (prev_ind != -1) {
         half_edge_lib[prev_ind].next = half_edge_index;
       }
       prev_ind = half_edge_index;
+
+      // set start half edge for vertex
+      auto& vertex = vertex_lib[vertex_loop[vert_ind]];
+      if (!vertex.HasStartHalfEdge()) {
+        vertex.start_half_edge = half_edge_index;
+      }
+      // push
+      half_edge_lib.push_back(half_edge);
       half_edge_index++;
     }
     // close the loop
@@ -198,7 +207,8 @@ void Model::PrintVertexAndFaces() {
 }
 
 void Model::DoCatmullClarkSubdivision() {
-  auto old_vertex_size = vertex_lib.size();
+  auto new_vertex_lib = std::vector<Vertex>(vertex_lib);
+  auto new_vertex_index = vertex_lib.size();
   // 1. calc center for each face
   for (auto& face : face_lib) {
     Vertex center_vertex;
@@ -208,17 +218,56 @@ void Model::DoCatmullClarkSubdivision() {
     for (auto index : vertex_indices) {
       center_pos += vertex_lib[index].posiiton;
     }
-    center_pos /= vertex_lib.size();
+    center_pos /= (float)face.face_degree;
     center_vertex.posiiton = center_pos;
+
+    new_vertex_lib.push_back(center_vertex);
+    face.new_vertex = new_vertex_index;
+    new_vertex_index++;
   }
 
   // 2. calc center for each edge
-  std::map<EdgeKey, VertexIndex> edge_center_map;
-  for (auto& edge : half_edge_lib) {
+  std::map<HalfEdgeIndex, bool> is_edge_processed;
+  for (size_t i = 0; i < half_edge_lib.size(); i++) { 
+    auto& edge = half_edge_lib[i];
+    Vertex center_vertex;
     auto& twin_edge = half_edge_lib[edge.twin];
+
+    if (is_edge_processed.count(i)) {
+      continue;
+    }
+
+    auto &face_center = new_vertex_lib[face_lib[edge.face].new_vertex],
+         &twin_face_center =
+             new_vertex_lib[face_lib[twin_edge.face].new_vertex];
+
     auto tail_pos = vertex_lib[edge.tail].posiiton,
-         head_pos = vertex_lib[twin_edge.tail].posiiton;
+         head_pos = vertex_lib[twin_edge.tail].posiiton,
+         face_center_pos = face_center.posiiton,
+         twin_face_center_pos = twin_face_center.posiiton;
+    auto center_pos = (tail_pos + head_pos + face_center_pos + twin_face_center_pos);
+    center_pos /= 4.f;
+    center_vertex.posiiton = center_pos;
+
+    edge.new_vertex = new_vertex_index;
+    twin_edge.new_vertex = new_vertex_index;
+    is_edge_processed[i] = true;
+    is_edge_processed[edge.twin] = true;
+
+    new_vertex_lib.push_back(center_vertex);
+    new_vertex_index++;
   }
+  
+  // 3. calc new position of old vertices
+  // TODO
+  for (size_t i = 0; i < vertex_lib.size(); i++) {
+    auto& vertex = vertex_lib[i];
+
+  }
+
+  // 4. Re-topology
+  // TODO
+
 }
 
 void Model::ExportToObj(const char* filename) {}
