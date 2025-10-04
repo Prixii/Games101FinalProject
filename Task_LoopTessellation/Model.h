@@ -1,11 +1,12 @@
 #pragma once
 #include <vector>
 #include <sstream>
+
 #include "Vertex.h"
 #include "HalfEdge.h"
 #include "Face.h"
 
-constexpr int MAX_FACE_DEGREE = 3;
+constexpr int MAX_FACE_DEGREE = 4;
 
 class Model {
  public:
@@ -14,9 +15,11 @@ class Model {
   std::vector<Face> face_lib;
 
   std::vector<glm::vec3> vertex_buffer;
-  std::vector<std::vector<int>> face_buffer;
+  std::vector<std::vector<VertexIndex>> face_buffer;
 
   void InitFromObj(const char* filename);
+  void ParseHalfEdge();
+  void CheckParseHalfEdgeResult();
   void ReadVertex(std::istringstream& sin, std::string s[3]);
   void ReadFace(std::istringstream& sin);
   void PrintVertexAndFaces();
