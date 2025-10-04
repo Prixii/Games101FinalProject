@@ -216,10 +216,10 @@ void Model::DoCatmullClarkSubdivision() {
 
     auto vertex_indices = face.GetVertexIndices(half_edge_lib);
     for (auto index : vertex_indices) {
-      center_pos += vertex_lib[index].posiiton;
+      center_pos += vertex_lib[index].position;
     }
     center_pos /= (float)face.face_degree;
-    center_vertex.posiiton = center_pos;
+    center_vertex.position = center_pos;
 
     new_vertex_lib.push_back(center_vertex);
     face.new_vertex = new_vertex_index;
@@ -228,7 +228,7 @@ void Model::DoCatmullClarkSubdivision() {
 
   // 2. calc center for each edge
   std::map<HalfEdgeIndex, bool> is_edge_processed;
-  for (size_t i = 0; i < half_edge_lib.size(); i++) { 
+  for (size_t i = 0; i < half_edge_lib.size(); i++) {
     auto& edge = half_edge_lib[i];
     Vertex center_vertex;
     auto& twin_edge = half_edge_lib[edge.twin];
@@ -241,13 +241,14 @@ void Model::DoCatmullClarkSubdivision() {
          &twin_face_center =
              new_vertex_lib[face_lib[twin_edge.face].new_vertex];
 
-    auto tail_pos = vertex_lib[edge.tail].posiiton,
-         head_pos = vertex_lib[twin_edge.tail].posiiton,
-         face_center_pos = face_center.posiiton,
-         twin_face_center_pos = twin_face_center.posiiton;
-    auto center_pos = (tail_pos + head_pos + face_center_pos + twin_face_center_pos);
+    auto tail_pos = vertex_lib[edge.tail].position,
+         head_pos = vertex_lib[twin_edge.tail].position,
+         face_center_pos = face_center.position,
+         twin_face_center_pos = twin_face_center.position;
+    auto center_pos =
+        (tail_pos + head_pos + face_center_pos + twin_face_center_pos);
     center_pos /= 4.f;
-    center_vertex.posiiton = center_pos;
+    center_vertex.position = center_pos;
 
     edge.new_vertex = new_vertex_index;
     twin_edge.new_vertex = new_vertex_index;
@@ -257,17 +258,36 @@ void Model::DoCatmullClarkSubdivision() {
     new_vertex_lib.push_back(center_vertex);
     new_vertex_index++;
   }
-  
+
   // 3. calc new position of old vertices
   // TODO
   for (size_t i = 0; i < vertex_lib.size(); i++) {
     auto& vertex = vertex_lib[i];
+    auto start_edge_index = vertex.start_half_edge;
+    auto current_edge_index = start_edge_index;
 
+    glm::vec3 face_position(0.f, 0.f, 0.f), edge_position(0.f, 0.f, 0.f);
+    do {
+      auto& edge = half_edge_lib[current_edge_index];
+      auto edge_tail_pos = vertex_lib[edge.tail].position;
+      auto edge_head_pos = vertex_lib[half_edge_lib[edge.twin].tail].position; // 需要使用原本的 vertex 而不是直接使用 edge.new_vertex
+      edge_position += ((edge_tail_pos + edge_head_pos) / 2.f);
+
+      auto& face = face_lib[edge.face];
+      face_position += new_vertex_lib[face.new_vertex].position;
+
+      current_edge_index = half_edge_lib[edge.next].twin;
+    } while (current_edge_index != start_edge_index);
+
+    float n = vertex.vertex_degree;
+    float n2 = (n * n);
+
+    vertex.new_position = (face_position / n2) + (2.f * edge_position / n2) +
+                          ((n - 3) * vertex.position / n);
   }
 
   // 4. Re-topology
   // TODO
-
 }
 
 void Model::ExportToObj(const char* filename) {}
