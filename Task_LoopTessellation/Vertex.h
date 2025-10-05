@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 
+#include "Tools.h"
 #include "TypeAlias.h"
 class Vertex {
  public:
@@ -21,6 +22,8 @@ class Vertex {
         vertex_degree(0),
         new_position(0, 0, 0) {};
 
-  inline bool HasStartHalfEdge() const { return start_half_edge != -1; }
+  bool HasStartHalfEdge() const;
 
+  void Print() const;
+  void Print(int index) const;
 };

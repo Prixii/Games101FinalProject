@@ -19,7 +19,7 @@ void processInput(GLFWwindow* window)
 int main()
 {
   Model model;
-  model.InitFromObj("assets/cube.obj");
+  model.InitFromObj("assets/tetrahedron.obj");
   // ≥ı ºªØ GLFW
   if (!glfwInit())
   {

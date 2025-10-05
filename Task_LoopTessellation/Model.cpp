@@ -29,6 +29,8 @@ void Model::InitFromObj(const char* filename) {
   ParseHalfEdge();
 
   CheckParseHalfEdgeResult();
+
+  DoCatmullClarkSubdivision();
 }
 
 void Model::ParseHalfEdge() {
@@ -92,7 +94,7 @@ void Model::ParseHalfEdge() {
     face_lib.push_back(face);
   }
 
-  for (auto edge : half_edge_lib) {
+  for (auto& edge : half_edge_lib) {
     edge.Print();
   }
 
@@ -100,9 +102,54 @@ void Model::ParseHalfEdge() {
   for (auto& edge : half_edge_lib) {
     vertex_lib[edge.tail].vertex_degree++;
   }
+}
 
-  for (size_t i = 0; i < vertex_lib.size(); i++) {
-    PrintInfo("degree of vertex%d: %d\n", i, vertex_lib[i].vertex_degree);
+void Model::ReadVertex(std::istringstream& sin, std::string s[3]) {
+  sin.ignore(2);
+  glm::vec3 position{};
+  for (auto i = 0; i < 3; i++) {
+    sin >> s[i];
+  }
+  position.x = std::stof(s[0]);
+  position.y = std::stof(s[1]);
+  position.z = std::stof(s[2]);
+  vertex_buffer.push_back(position);
+}
+
+void Model::ReadFace(std::istringstream& sin) {
+  sin.ignore(2);
+  std::string vertex_desc;
+  std::vector<VertexIndex> face_v_indices;
+  while (sin >> vertex_desc) {
+    std::stringstream desc_ss(vertex_desc);
+    std::string segment;
+    if (!std::getline(desc_ss, segment, '/')) {
+      continue;
+    }
+    try {
+      int obj_v_index = std::stoi(segment);
+
+      VertexIndex v_idx = obj_v_index - 1;
+      face_v_indices.push_back(v_idx);
+    } catch (const std::invalid_argument& e) {
+      PrintErr("invalid argument, %s\n", segment.c_str());
+      break;
+    }
+  }
+  face_buffer.push_back(face_v_indices);
+}
+
+void Model::PrintVertexAndFaces() {
+  for (auto i = 0; i < vertex_buffer.size(); i++) {
+    PrintInfo("Vertex%d: %f, %f, %f\n", i, vertex_buffer[i].x,
+              vertex_buffer[i].y, vertex_buffer[i].z);
+  }
+  for (auto i = 0; i < face_buffer.size(); i++) {
+    PrintInfo("Face%d: ", i);
+    for (auto j = 0; j < face_buffer[i].size(); j++) {
+      printf("%d ", face_buffer[i][j]);
+    }
+    printf("\n");
   }
 }
 
@@ -157,55 +204,6 @@ void Model::CheckParseHalfEdgeResult() {
   }
 }
 
-void Model::ReadVertex(std::istringstream& sin, std::string s[3]) {
-  sin.ignore(2);
-  glm::vec3 position;
-  for (auto i = 0; i < 3; i++) {
-    sin >> s[i];
-  }
-  position.x = std::stof(s[0]);
-  position.y = std::stof(s[1]);
-  position.z = std::stof(s[2]);
-  vertex_buffer.push_back(position);
-}
-
-void Model::ReadFace(std::istringstream& sin) {
-  sin.ignore(2);
-  std::string vertex_desc;
-  std::vector<VertexIndex> face_v_indices;
-  while (sin >> vertex_desc) {
-    std::stringstream desc_ss(vertex_desc);
-    std::string segment;
-    if (!std::getline(desc_ss, segment, '/')) {
-      continue;
-    }
-    try {
-      int obj_v_index = std::stoi(segment);
-
-      VertexIndex v_idx = obj_v_index - 1;
-      face_v_indices.push_back(v_idx);
-    } catch (const std::invalid_argument& e) {
-      PrintErr("invalid argument, %s\n", segment.c_str());
-      break;
-    }
-  }
-  face_buffer.push_back(face_v_indices);
-}
-
-void Model::PrintVertexAndFaces() {
-  for (auto i = 0; i < vertex_buffer.size(); i++) {
-    PrintInfo("Vertex%d: %f, %f, %f\n", i, vertex_buffer[i].x,
-              vertex_buffer[i].y, vertex_buffer[i].z);
-  }
-  for (auto i = 0; i < face_buffer.size(); i++) {
-    PrintInfo("Face%d: ", i);
-    for (auto j = 0; j < face_buffer[i].size(); j++) {
-      printf("%d ", face_buffer[i][j]);
-    }
-    printf("\n");
-  }
-}
-
 void Model::DoCatmullClarkSubdivision() {
   auto new_vertex_lib = std::vector<Vertex>(vertex_lib);
   auto new_vertex_index = vertex_lib.size();
@@ -220,6 +218,7 @@ void Model::DoCatmullClarkSubdivision() {
     }
     center_pos /= (float)face.face_degree;
     center_vertex.position = center_pos;
+    center_vertex.vertex_degree = face.face_degree;
 
     new_vertex_lib.push_back(center_vertex);
     face.new_vertex = new_vertex_index;
@@ -249,6 +248,7 @@ void Model::DoCatmullClarkSubdivision() {
         (tail_pos + head_pos + face_center_pos + twin_face_center_pos);
     center_pos /= 4.f;
     center_vertex.position = center_pos;
+    center_vertex.vertex_degree = 4;
 
     edge.new_vertex = new_vertex_index;
     twin_edge.new_vertex = new_vertex_index;
@@ -260,7 +260,6 @@ void Model::DoCatmullClarkSubdivision() {
   }
 
   // 3. calc new position of old vertices
-  // TODO
   for (size_t i = 0; i < vertex_lib.size(); i++) {
     auto& vertex = vertex_lib[i];
     auto start_edge_index = vertex.start_half_edge;
@@ -270,7 +269,9 @@ void Model::DoCatmullClarkSubdivision() {
     do {
       auto& edge = half_edge_lib[current_edge_index];
       auto edge_tail_pos = vertex_lib[edge.tail].position;
-      auto edge_head_pos = vertex_lib[half_edge_lib[edge.twin].tail].position; // 需要使用原本的 vertex 而不是直接使用 edge.new_vertex
+      auto edge_head_pos = vertex_lib[half_edge_lib[edge.twin].tail]
+                               .position;  // 需要使用原本的 vertex
+                                           // 而不是直接使用 edge.new_vertex
       edge_position += ((edge_tail_pos + edge_head_pos) / 2.f);
 
       auto& face = face_lib[edge.face];
@@ -287,7 +288,102 @@ void Model::DoCatmullClarkSubdivision() {
   }
 
   // 4. Re-topology
-  // TODO
+  // 4.1 calc face, edge
+  std::vector<Face> new_face_lib;
+  std::vector<HalfEdge> new_half_edge_lib;
+  HalfEdgeIndex half_edge_count = 0;
+  FaceIndex face_count = 0;
+  for (size_t i = 0; i < face_lib.size(); i++) {
+    auto& old_face = face_lib[i];
+    std::vector<VertexIndex> loop_vertex_indices;
+
+    auto old_start_edge_index = old_face.start_half_edge;
+    auto old_current_edge_index = old_start_edge_index;
+    do {
+      auto& current_edge = half_edge_lib[old_current_edge_index];
+
+      loop_vertex_indices.push_back(current_edge.tail);
+      loop_vertex_indices.push_back(current_edge.new_vertex);
+
+      old_current_edge_index = current_edge.next;
+    } while (old_current_edge_index != old_start_edge_index);
+
+    auto& center_vertex_index = old_face.new_vertex;
+    auto indices_size = loop_vertex_indices.size();
+    for (size_t vertex_ind = 0; vertex_ind < indices_size; vertex_ind += 2) {
+      auto v1_index = center_vertex_index,
+           v2_index = loop_vertex_indices[(vertex_ind + indices_size - 1) %
+                                          indices_size],
+
+           v3_index = loop_vertex_indices[vertex_ind],
+
+           v4_index = loop_vertex_indices[(vertex_ind + 1) % indices_size];
+
+      HalfEdge e1, e2, e3, e4;
+      e1.tail = v1_index;
+      e2.tail = v2_index;
+      e3.tail = v3_index;
+      e4.tail = v4_index;
+
+      e1.next = half_edge_count + 1;
+      e2.next = half_edge_count + 2;
+      e3.next = half_edge_count + 3;
+      e4.next = half_edge_count;
+
+      e1.face = face_count;
+      e2.face = face_count;
+      e3.face = face_count;
+      e4.face = face_count;
+
+      Face new_face;
+
+      new_face.face_degree = 4;
+      new_face.start_half_edge = half_edge_count;
+
+      new_half_edge_lib.push_back(e1);
+      new_half_edge_lib.push_back(e2);
+      new_half_edge_lib.push_back(e3);
+      new_half_edge_lib.push_back(e4);
+      half_edge_count += 4;
+
+      new_face_lib.push_back(new_face);
+      face_count += 1;
+    }
+  }
+
+  // 4.2 set twin
+   std::map<EdgeKey, HalfEdgeIndex> twin_map;
+   for (size_t edge_index = 0; edge_index < new_half_edge_lib.size();
+       edge_index++) {
+    auto& edge = new_half_edge_lib[edge_index];
+    if (edge.HasTwin()) continue;
+
+    auto& next_edge = new_half_edge_lib[edge.next];
+    EdgeKey reverse_key(next_edge.tail, edge.tail);
+    if (twin_map.count(reverse_key)) {
+      // find twin
+
+      auto twin_index = twin_map[reverse_key];
+      edge.twin = twin_index;
+      new_half_edge_lib[twin_index].twin = edge_index;
+      twin_map.erase(reverse_key);
+    } else {
+      EdgeKey key(edge.tail, next_edge.tail);
+      twin_map[key] = edge_index;
+    }
+  }
+
+  for (size_t i = 0; i < new_vertex_lib.size(); i++) {
+    new_vertex_lib[i].Print(i);
+  }
+
+  for (size_t i = 0; i < new_face_lib.size(); i++) {
+    new_face_lib[i].Print(i);
+  }
+
+  for (size_t i = 0; i < new_half_edge_lib.size(); i++) {
+    new_half_edge_lib[i].Print(i);
+  }
 }
 
 void Model::ExportToObj(const char* filename) {}
