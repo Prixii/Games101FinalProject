@@ -30,9 +30,6 @@ void Model::InitFromObj(const char* filename) {
 
   CheckParseHalfEdgeResult();
 
-  DoCatmullClarkSubdivision();
-
-  ExportToObj("tesslated.obj");
 }
 
 void Model::ParseHalfEdge() {
