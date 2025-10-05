@@ -11,3 +11,8 @@ void Vertex::Print(int index) const {
             index, position.x, position.y, position.z, start_half_edge,
             vertex_degree);
 }
+
+std::string Vertex::ToObjString() const {
+  return "v " + std::to_string(position.x) +
+         " " + std::to_string(position.y) + " " + std::to_string(position.z) + "\n";
+}

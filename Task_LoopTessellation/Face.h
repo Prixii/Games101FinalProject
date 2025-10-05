@@ -20,4 +20,15 @@ class Face {
 
   void Print() const;
   void Print(int index) const;
+
+  std::string ToObjString(std::vector<HalfEdge> &half_edge_lib) const {
+    auto current_index = start_half_edge;
+		std::string str = "f";
+		do {
+			const auto& current_edge = half_edge_lib[current_index];
+			str += " " + std::to_string(current_edge.tail + 1);
+			current_index = current_edge.next;
+		} while (current_index != start_half_edge);
+    return str + "\n";
+  }
 };

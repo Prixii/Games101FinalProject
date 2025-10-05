@@ -26,4 +26,6 @@ class Vertex {
 
   void Print() const;
   void Print(int index) const;
+
+  std::string ToObjString() const;
 };
