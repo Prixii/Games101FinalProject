@@ -24,5 +24,11 @@ class Model {
   void ReadFace(std::istringstream& sin);
   void PrintVertexAndFaces();
   void DoCatmullClarkSubdivision();
+  void GenerateCenterForEdge(std::vector<Vertex>& new_vertex_lib);
+  void GenerateFaceCenterVertex(std::vector<Vertex>& new_vertex_lib);
+  void CalcNewPositionForOldVertex(std::vector<Vertex>& new_vertex_lib);
+  void GenerateEdgeAndFace(std::vector<HalfEdge>& new_half_edge_lib,
+                           std::vector<Face>& new_face_lib);
+  void GenerateEdgeTwin(std::vector<HalfEdge>& new_half_edge_lib);
   void ExportToObj(const char* filename);
 };

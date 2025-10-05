@@ -29,7 +29,6 @@ void Model::InitFromObj(const char* filename) {
   ParseHalfEdge();
 
   CheckParseHalfEdgeResult();
-
 }
 
 void Model::ParseHalfEdge() {
@@ -205,26 +204,33 @@ void Model::CheckParseHalfEdgeResult() {
 
 void Model::DoCatmullClarkSubdivision() {
   auto new_vertex_lib = std::vector<Vertex>(vertex_lib);
-  auto new_vertex_index = vertex_lib.size();
   // 1. calc center for each face
-  for (auto& face : face_lib) {
-    Vertex center_vertex;
-    glm::vec3 center_pos(0.f, 0.f, 0.f);
-
-    auto vertex_indices = face.GetVertexIndices(half_edge_lib);
-    for (auto index : vertex_indices) {
-      center_pos += vertex_lib[index].position;
-    }
-    center_pos /= (float)face.face_degree;
-    center_vertex.position = center_pos;
-    center_vertex.vertex_degree = face.face_degree;
-
-    new_vertex_lib.push_back(center_vertex);
-    face.new_vertex = new_vertex_index;
-    new_vertex_index++;
-  }
+  GenerateFaceCenterVertex(new_vertex_lib);
 
   // 2. calc center for each edge
+  GenerateCenterForEdge(new_vertex_lib);
+
+  // 3. calc new position of old vertices
+  CalcNewPositionForOldVertex(new_vertex_lib);
+
+  // 4. Re-topology
+  std::vector<Face> new_face_lib;
+  std::vector<HalfEdge> new_half_edge_lib;
+
+  // 4.1 calc face, edge
+  GenerateEdgeAndFace(new_half_edge_lib, new_face_lib);
+
+  // 4.2 set twin
+  GenerateEdgeTwin(new_half_edge_lib);
+
+  // 5. write
+  face_lib = std::move(new_face_lib);
+  half_edge_lib = std::move(new_half_edge_lib);
+  vertex_lib = std::move(new_vertex_lib);
+}
+
+void Model::GenerateCenterForEdge(std::vector<Vertex>& new_vertex_lib) {
+  auto new_vertex_index = vertex_lib.size();
   std::map<HalfEdgeIndex, bool> is_edge_processed;
   for (size_t i = 0; i < half_edge_lib.size(); i++) {
     auto& edge = half_edge_lib[i];
@@ -257,8 +263,29 @@ void Model::DoCatmullClarkSubdivision() {
     new_vertex_lib.push_back(center_vertex);
     new_vertex_index++;
   }
+}
 
-  // 3. calc new position of old vertices
+void Model::GenerateFaceCenterVertex(std::vector<Vertex>& new_vertex_lib) {
+  auto new_vertex_index = vertex_lib.size();
+  for (auto& face : face_lib) {
+    Vertex center_vertex;
+    glm::vec3 center_pos(0.f, 0.f, 0.f);
+
+    auto vertex_indices = face.GetVertexIndices(half_edge_lib);
+    for (auto index : vertex_indices) {
+      center_pos += vertex_lib[index].position;
+    }
+    center_pos /= (float)face.face_degree;
+    center_vertex.position = center_pos;
+    center_vertex.vertex_degree = face.face_degree;
+
+    new_vertex_lib.push_back(center_vertex);
+    face.new_vertex = new_vertex_index;
+    new_vertex_index++;
+  }
+}
+
+void Model::CalcNewPositionForOldVertex(std::vector<Vertex>& new_vertex_lib) {
   for (size_t i = 0; i < vertex_lib.size(); i++) {
     auto& vertex = vertex_lib[i];
     auto start_edge_index = vertex.start_half_edge;
@@ -269,8 +296,7 @@ void Model::DoCatmullClarkSubdivision() {
     do {
       auto& edge = half_edge_lib[current_edge_index];
       auto edge_tail_pos = vertex_lib[edge.tail].position;
-      auto edge_head_pos = vertex_lib[half_edge_lib[edge.twin].tail]
-                               .position;  
+      auto edge_head_pos = vertex_lib[half_edge_lib[edge.twin].tail].position;
       auto edge_center_pos = (edge_tail_pos + edge_head_pos) / 2.f;
       edge_position += edge_center_pos;
       printf("Edge: %d <- %d\n", edge.tail, half_edge_lib[edge.twin].tail);
@@ -290,11 +316,10 @@ void Model::DoCatmullClarkSubdivision() {
                                  (2.f * edge_position / n2) +
                                  ((n - 3) * vertex.position / n);
   }
+}
 
-  // 4. Re-topology
-  // 4.1 calc face, edge
-  std::vector<Face> new_face_lib;
-  std::vector<HalfEdge> new_half_edge_lib;
+void Model::GenerateEdgeAndFace(std::vector<HalfEdge>& new_half_edge_lib,
+                                std::vector<Face>& new_face_lib) {
   HalfEdgeIndex half_edge_count = 0;
   FaceIndex face_count = 0;
   for (size_t i = 0; i < face_lib.size(); i++) {
@@ -354,8 +379,9 @@ void Model::DoCatmullClarkSubdivision() {
       face_count += 1;
     }
   }
+}
 
-  // 4.2 set twin
+void Model::GenerateEdgeTwin(std::vector<HalfEdge>& new_half_edge_lib) {
   std::map<EdgeKey, HalfEdgeIndex> twin_map;
   for (size_t edge_index = 0; edge_index < new_half_edge_lib.size();
        edge_index++) {
@@ -376,55 +402,30 @@ void Model::DoCatmullClarkSubdivision() {
       twin_map[key] = edge_index;
     }
   }
-
-  for (size_t i = 0; i < new_vertex_lib.size(); i++) {
-    new_vertex_lib[i].Print(i);
-  }
-
-  for (size_t i = 0; i < new_face_lib.size(); i++) {
-    new_face_lib[i].Print(i);
-  }
-
-  for (size_t i = 0; i < new_half_edge_lib.size(); i++) {
-    new_half_edge_lib[i].Print(i);
-  }
-
-  // write
-  face_lib = std::move(new_face_lib);
-  half_edge_lib = std::move(new_half_edge_lib);
-  vertex_lib = std::move(new_vertex_lib);
 }
 
 void Model::ExportToObj(const char* filename) {
-  // 1. 创建文件输出流对象
   std::ofstream output_file(filename);
 
-  // 2. 检查文件是否成功打开
   if (!output_file.is_open()) {
     std::cerr << "Error: Could not open file for writing: " << filename
               << std::endl;
     return;
   }
 
-  // 写入文件头信息
   output_file << "# OBJ file generated by Half-Edge Subdivider" << std::endl;
   output_file << "# Vertices: " << vertex_lib.size() << std::endl;
 
-  // --- 3. 写入所有顶点 (v) ---
   for (const auto& vertex : vertex_lib) {
-    // 使用文件流的 << 运算符，而不是 printf
     output_file << vertex.ToObjString();
   }
 
   output_file << "\n# Faces: " << face_lib.size() << std::endl;
 
-  // --- 4. 写入所有面 (f) ---
   for (const auto& face : face_lib) {
-    // 使用文件流的 << 运算符
     output_file << face.ToObjString(half_edge_lib);
   }
 
-  // 5. 关闭文件流并确认成功
   output_file.close();
   std::cout << "Successfully exported OBJ file to: " << filename << std::endl;
 }
