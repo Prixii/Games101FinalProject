@@ -9,7 +9,7 @@ class Triangle {
   Triangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec3 color);
   Triangle();
 
-  void ComputeNormal();
+  void UpdateNormal();
 
   bool Intersect(const glm::vec3& ray_origin, const glm::vec3& ray_direction) const {
     // Moller Trumbore intersection algorithm
@@ -27,4 +27,5 @@ class Triangle {
     // TODO more infomation
     return true;
   }
+
 };
