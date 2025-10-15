@@ -129,19 +129,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="general\Tools.cpp" />
     <ClCompile Include="Task_LoopTessellation\Face.cpp" />
     <ClCompile Include="Task_LoopTessellation\HalfEdge.cpp" />
     <ClCompile Include="Task_LoopTessellation\main.cpp" />
     <ClCompile Include="Task_LoopTessellation\Model.cpp" />
-    <ClCompile Include="Task_LoopTessellation\Tools.cpp" />
     <ClCompile Include="Task_LoopTessellation\TwoPointIndex.cpp" />
     <ClCompile Include="Task_LoopTessellation\Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="general\Tools.h" />
     <ClInclude Include="Task_LoopTessellation\Face.h" />
     <ClInclude Include="Task_LoopTessellation\HalfEdge.h" />
     <ClInclude Include="Task_LoopTessellation\Model.h" />
-    <ClInclude Include="Task_LoopTessellation\Tools.h" />
     <ClInclude Include="Task_LoopTessellation\TwoPointIndex.h" />
     <ClInclude Include="Task_LoopTessellation\TypeAlias.h" />
     <ClInclude Include="Task_LoopTessellation\Vertex.h" />

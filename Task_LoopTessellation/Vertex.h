@@ -1,7 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 
-#include "Tools.h"
+#include "../general/Tools.h"
 #include "TypeAlias.h"
 class Vertex {
  public:

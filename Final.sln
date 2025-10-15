@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36429.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CatmullClarkTessellation", "Final.vcxproj", "{F60F469B-BBE3-42E2-AC86-894842D0EDC8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Final", "Final.vcxproj", "{F60F469B-BBE3-42E2-AC86-894842D0EDC8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QEM", "QEM\QEM.vcxproj", "{1EF469E0-54B9-4701-A4A1-3B160BEB691E}"
 EndProject

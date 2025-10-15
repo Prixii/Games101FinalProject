@@ -27,13 +27,13 @@
     <ClCompile Include="Task_LoopTessellation\Model.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Task_LoopTessellation\Tools.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Task_LoopTessellation\TwoPointIndex.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Task_LoopTessellation\Vertex.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="general\Tools.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,7 +56,7 @@
     <ClInclude Include="Task_LoopTessellation\Model.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Task_LoopTessellation\Tools.h">
+    <ClInclude Include="general\Tools.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

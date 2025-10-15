@@ -1,5 +1,5 @@
 #pragma once
-#include "Tools.h"
+#include "../general/Tools.h"
 #include "TypeAlias.h"
 
 class HalfEdge {
