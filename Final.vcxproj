@@ -129,22 +129,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CatmullClarkTessellation\Face.cpp" />
+    <ClCompile Include="CatmullClarkTessellation\HalfEdge.cpp" />
+    <ClCompile Include="CatmullClarkTessellation\main.cpp" />
+    <ClCompile Include="CatmullClarkTessellation\Model.cpp" />
+    <ClCompile Include="CatmullClarkTessellation\TwoPointIndex.cpp" />
+    <ClCompile Include="CatmullClarkTessellation\Vertex.cpp" />
     <ClCompile Include="general\Tools.cpp" />
-    <ClCompile Include="Task_LoopTessellation\Face.cpp" />
-    <ClCompile Include="Task_LoopTessellation\HalfEdge.cpp" />
-    <ClCompile Include="Task_LoopTessellation\main.cpp" />
-    <ClCompile Include="Task_LoopTessellation\Model.cpp" />
-    <ClCompile Include="Task_LoopTessellation\TwoPointIndex.cpp" />
-    <ClCompile Include="Task_LoopTessellation\Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CatmullClarkTessellation\Face.h" />
+    <ClInclude Include="CatmullClarkTessellation\HalfEdge.h" />
+    <ClInclude Include="CatmullClarkTessellation\Model.h" />
+    <ClInclude Include="CatmullClarkTessellation\TwoPointIndex.h" />
+    <ClInclude Include="CatmullClarkTessellation\TypeAlias.h" />
+    <ClInclude Include="CatmullClarkTessellation\Vertex.h" />
     <ClInclude Include="general\Tools.h" />
-    <ClInclude Include="Task_LoopTessellation\Face.h" />
-    <ClInclude Include="Task_LoopTessellation\HalfEdge.h" />
-    <ClInclude Include="Task_LoopTessellation\Model.h" />
-    <ClInclude Include="Task_LoopTessellation\TwoPointIndex.h" />
-    <ClInclude Include="Task_LoopTessellation\TypeAlias.h" />
-    <ClInclude Include="Task_LoopTessellation\Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

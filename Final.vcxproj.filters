@@ -15,48 +15,48 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Task_LoopTessellation\Face.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Task_LoopTessellation\HalfEdge.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Task_LoopTessellation\main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Task_LoopTessellation\Model.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Task_LoopTessellation\TwoPointIndex.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Task_LoopTessellation\Vertex.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="general\Tools.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CatmullClarkTessellation\Model.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CatmullClarkTessellation\TwoPointIndex.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CatmullClarkTessellation\Vertex.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CatmullClarkTessellation\Face.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CatmullClarkTessellation\HalfEdge.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CatmullClarkTessellation\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Task_LoopTessellation\TwoPointIndex.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Task_LoopTessellation\TypeAlias.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Task_LoopTessellation\Vertex.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Task_LoopTessellation\Face.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Task_LoopTessellation\HalfEdge.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Task_LoopTessellation\Model.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="general\Tools.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CatmullClarkTessellation\Model.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CatmullClarkTessellation\TwoPointIndex.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CatmullClarkTessellation\TypeAlias.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CatmullClarkTessellation\Vertex.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CatmullClarkTessellation\Face.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CatmullClarkTessellation\HalfEdge.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
