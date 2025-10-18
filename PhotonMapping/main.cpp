@@ -3,6 +3,13 @@
 #include "SDLHelper.h"
 #include "Model.h"
 
+
+/// photon mapping
+/// KD tree
+
+
+
+
 constexpr auto WINDOW_WIDTH = 800;
 constexpr auto WINDOW_HEIGHT = 800;
 

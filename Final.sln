@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36429.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Final", "Final.vcxproj", "{F60F469B-BBE3-42E2-AC86-894842D0EDC8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CatmullClarkTessellation", "Final.vcxproj", "{F60F469B-BBE3-42E2-AC86-894842D0EDC8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QEM", "QEM\QEM.vcxproj", "{1EF469E0-54B9-4701-A4A1-3B160BEB691E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PhotonMapping", "PhotonMapping\PhotonMapping.vcxproj", "{02B3740D-6672-47B9-8D5E-2C06B06E1BF8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KDTree", "KDTree\KDTree.vcxproj", "{F9C81EE5-6BB7-45C4-A600-F229AC8CB376}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,14 @@ Global
 		{02B3740D-6672-47B9-8D5E-2C06B06E1BF8}.Release|x64.Build.0 = Release|x64
 		{02B3740D-6672-47B9-8D5E-2C06B06E1BF8}.Release|x86.ActiveCfg = Release|Win32
 		{02B3740D-6672-47B9-8D5E-2C06B06E1BF8}.Release|x86.Build.0 = Release|Win32
+		{F9C81EE5-6BB7-45C4-A600-F229AC8CB376}.Debug|x64.ActiveCfg = Debug|x64
+		{F9C81EE5-6BB7-45C4-A600-F229AC8CB376}.Debug|x64.Build.0 = Debug|x64
+		{F9C81EE5-6BB7-45C4-A600-F229AC8CB376}.Debug|x86.ActiveCfg = Debug|Win32
+		{F9C81EE5-6BB7-45C4-A600-F229AC8CB376}.Debug|x86.Build.0 = Debug|Win32
+		{F9C81EE5-6BB7-45C4-A600-F229AC8CB376}.Release|x64.ActiveCfg = Release|x64
+		{F9C81EE5-6BB7-45C4-A600-F229AC8CB376}.Release|x64.Build.0 = Release|x64
+		{F9C81EE5-6BB7-45C4-A600-F229AC8CB376}.Release|x86.ActiveCfg = Release|Win32
+		{F9C81EE5-6BB7-45C4-A600-F229AC8CB376}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
