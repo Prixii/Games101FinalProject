@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Intersection.h"
+#include "Model.h"
 #include "Photon.h"
 #include "PhotonMappingConfig.h"
 #include "SDL3/SDL_pixels.h"
@@ -11,9 +12,10 @@
 #include "glm/ext/vector_float3.hpp"
 #include <cstdio>
 #include <vector>
-void EmitPhotons(int num_photons);
 
-void TracePhoton(Photon &p);
+std::vector<Photon> EmitPhotons(int num_photons, Model &model);
+
+void TracePhoton(Photon &p, Model &model, std::vector<Photon> &photons);
 
 bool ClosestIntersection(const glm::vec3 start, const glm::vec3 dir,
                          const std::vector<Triangle> &triangles,

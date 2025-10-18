@@ -49,3 +49,25 @@ float GetRandomFloat(float min, float max) {
   return min + static_cast<float>(rand()) /
                    (static_cast<float>(RAND_MAX / (max - min)));
 }
+float GetSqrDist(const glm::vec3 a, const glm::vec3 b) {
+  auto sqr_dist = 0.f;
+  for (int i = 0; i < 3; i++) {
+    sqr_dist += (a[i] - b[i]) * (a[i] - b[i]);
+  }
+  return sqr_dist;
+}
+glm::vec3 GetRandomDirection(const glm::vec3 &normal) {
+  float z = glm::sqrt(GetRandomFloat());
+  float r = sqrt(1.0 - z * z);
+  float phi = 2.0 * PI * GetRandomFloat();
+  float x = r * cos(phi);
+  float y = r * sin(phi);
+
+  glm::vec3 w, u, v;
+  w = normal;
+  u = glm::normalize(
+      glm::cross(abs(w.x) > .1 ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0), w));
+  v = glm::cross(normal, u);
+
+  return x * u + y * v + z * w;
+}

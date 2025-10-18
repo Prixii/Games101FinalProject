@@ -1,11 +1,20 @@
 #include "PhotonMapping.h"
 #include "../general/Tools.h"
+#include "Intersection.h"
 #include "Photon.h"
 #include "PhotonMappingConfig.h"
+#include "glm/ext/vector_float3.hpp"
+#include "glm/geometric.hpp"
+#include <cmath>
+#include <utility>
+#include <vector>
 
-void EmitPhotons(int num_photons) {
+std::vector<Photon> EmitPhotons(int num_photons, Model &model) {
   float x, y, z;
   glm::vec3 photon_dir;
+
+  std::vector<Photon> photons;
+
   for (int i = 0; i < num_photons; i++) {
     do {
       x = GetRandomFloat();
@@ -16,9 +25,52 @@ void EmitPhotons(int num_photons) {
     photon_dir = glm::vec3(x, y, z);
 
     Photon p(photon_dir, LIGHT_POS, LIGHT_POWER / (float)num_photons, 0);
+    TracePhoton(p, model, photons);
+  }
+  return photons;
+}
+
+void TracePhoton(Photon &p, Model &model, std::vector<Photon> &photons) {
+  Intersection i, j;
+
+  glm::vec3 x0, x1;
+  float t0, t1;
+
+  auto &spheres = model.spheres_;
+  auto &triangles = model.triangles_;
+
+  if (!ClosestIntersection(p.source_, p.direction_, triangles, spheres, i)) {
+    return;
+  }
+
+  if (i.IsSphere()) {
+    auto standard =
+        Fresnel(glm::normalize(p.direction_),
+                glm::normalize(i.position_ - spheres[i.sphere_index_].center_));
+    if (GetRandomFloat() < standard) {
+      Reflect(spheres[i.sphere_index_], glm::normalize(p.direction_), triangles,
+              spheres, i, j);
+    } else {
+      Refract(spheres[i.sphere_index_], p.direction_, triangles, spheres, i, j);
+    }
+
+    p.destination_ = j.position_;
+    photons.push_back(p);
+    std::swap(i, j);
+  } else {
+    p.destination_ = i.position_;
+    if (p.bounces_ > 0) {
+      photons.push_back(p);
+    }
+  }
+  auto triangle = triangles[i.triangle_index_];
+  if (p.bounces_ == 0 || GetRandomFloat() < 0.5) {
+    Photon p2(GetRandomDirection(triangle.normal), i.position_,
+              p.energy_ * triangle.color / (float)std::sqrt(p.bounces_ + 1),
+              p.bounces_ + 1);
   }
 }
-void TracePhoton(Photon &p) { NOT_IMPLEMENTED; }
+
 void RayTrace(SDL_Surface *screen, SDL_Window *window,
               const std::vector<Triangle> &triangles,
               const std::vector<Sphere> &spheres) {

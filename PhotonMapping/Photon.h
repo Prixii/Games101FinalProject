@@ -21,7 +21,7 @@ struct Photon {
   Photon(glm::vec3 direction, glm::vec3 source, glm::vec3 energy,
          int bounces = 0)
       : direction_(direction), source_(source), energy_(energy),
-        bounces_(bounces) {}
+        bounces_(bounces), destination_(glm::vec3(0,0,0)) {}
 };
 
 bool Refract(const glm::vec3 &photon_dir, const glm::vec3 &surface_normal,

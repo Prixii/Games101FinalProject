@@ -2,11 +2,9 @@
 #include <vector>
 
 #include "KdTree.h"
-#include "Model.h"
 #include "Photon.h"
 #include "PhotonMapping.h"
 #include "PhotonMappingConfig.h"
-#include "SDL3/SDL_oldnames.h"
 #include "SDL3/SDL_surface.h"
 #include "SDLHelper.h"
 
@@ -14,12 +12,10 @@
 /// KD tree
 
 int main() {
-
   Model model;
   model.LoadTestModel();
 
-  std::vector<Photon> photons;
-  EmitPhotons(NUM_PHOTONS);
+  auto photons = EmitPhotons(NUM_PHOTONS, model);
 
   KdTree photon_map;
   photon_map.SetPhotons(photons.data(), NUM_PHOTONS);
