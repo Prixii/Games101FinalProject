@@ -33,6 +33,21 @@
     <ClCompile Include="Sphere.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Photon.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Intersection.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PhotonMapping.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PhotonMappingConfig.h">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="KdTree.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SDLHelper.h">
@@ -48,6 +63,18 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sphere.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Photon.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Intersection.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PhotonMapping.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="KdTree.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

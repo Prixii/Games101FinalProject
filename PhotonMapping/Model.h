@@ -6,9 +6,9 @@
 #include "Triangle.h"
 
 class Model {
- public:
-  std::vector<Triangle> triangles;
-  std::vector<Sphere> spheres;
+public:
+  std::vector<Triangle> triangles_;
+  std::vector<Sphere> spheres_;
 
   Model() {}
 

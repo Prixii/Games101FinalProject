@@ -1,8 +1,11 @@
 #include "Model.h"
+#include "Sphere.h"
+#include "Triangle.h"
+#include "glm/ext/vector_float3.hpp"
 
 inline void Model::LoadTestModel() {
-  triangles.clear();
-  triangles.reserve(5 * 2 * 3);
+  triangles_.clear();
+  triangles_.reserve(5 * 2 * 3);
 
   float L = 555.f;
 
@@ -21,25 +24,25 @@ inline void Model::LoadTestModel() {
   const glm::vec3 red(1, 0, 0);
   const glm::vec3 blue(0, 0, 1);
 
-  triangles.push_back(Triangle(C, B, A, white));
-  triangles.push_back(Triangle(C, D, B, white));
+  triangles_.push_back(Triangle(C, B, A, white));
+  triangles_.push_back(Triangle(C, D, B, white));
 
-  triangles.push_back(Triangle(A, E, C, red));
-  triangles.push_back(Triangle(C, E, G, red));
+  triangles_.push_back(Triangle(A, E, C, red));
+  triangles_.push_back(Triangle(C, E, G, red));
 
-  triangles.push_back(Triangle(F, B, D, blue));
-  triangles.push_back(Triangle(H, F, D, blue));
+  triangles_.push_back(Triangle(F, B, D, blue));
+  triangles_.push_back(Triangle(H, F, D, blue));
 
-  triangles.push_back(Triangle(E, F, G, green));
-  triangles.push_back(Triangle(F, H, G, green));
+  triangles_.push_back(Triangle(E, F, G, green));
+  triangles_.push_back(Triangle(F, H, G, green));
 
-  triangles.push_back(Triangle(G, D, C, white));
-  triangles.push_back(Triangle(G, H, D, white));
+  triangles_.push_back(Triangle(G, D, C, white));
+  triangles_.push_back(Triangle(G, H, D, white));
 
-  triangles.push_back(Triangle(F, E, B, white));
-  triangles.push_back(Triangle(B, E, A, white));
+  triangles_.push_back(Triangle(F, E, B, white));
+  triangles_.push_back(Triangle(B, E, A, white));
 
-  spheres.push_back(Sphere(glm::vec3(130, 90, 130), 100.f));
+  spheres_.push_back(Sphere(glm::vec3(130, 90, 130), 100.f));
 
   A = glm::vec3(423, 0, 247);
   B = glm::vec3(265, 0, 296);
@@ -52,26 +55,26 @@ inline void Model::LoadTestModel() {
   H = glm::vec3(314, 330, 456);
 
   // Front
-  triangles.push_back(Triangle(E, B, A, white));
-  triangles.push_back(Triangle(E, F, B, white));
+  triangles_.push_back(Triangle(E, B, A, white));
+  triangles_.push_back(Triangle(E, F, B, white));
 
   // Front
-  triangles.push_back(Triangle(F, D, B, white));
-  triangles.push_back(Triangle(F, H, D, white));
+  triangles_.push_back(Triangle(F, D, B, white));
+  triangles_.push_back(Triangle(F, H, D, white));
 
   // BACK
-  triangles.push_back(Triangle(H, C, D, white));
-  triangles.push_back(Triangle(H, G, C, white));
+  triangles_.push_back(Triangle(H, C, D, white));
+  triangles_.push_back(Triangle(H, G, C, white));
 
   // LEFT
-  triangles.push_back(Triangle(G, E, C, white));
-  triangles.push_back(Triangle(E, A, C, white));
+  triangles_.push_back(Triangle(G, E, C, white));
+  triangles_.push_back(Triangle(E, A, C, white));
 
   // TOP
-  triangles.push_back(Triangle(G, F, E, white));
-  triangles.push_back(Triangle(G, H, F, white));
+  triangles_.push_back(Triangle(G, F, E, white));
+  triangles_.push_back(Triangle(G, H, F, white));
 
-  for (auto &triangle : triangles) {
+  for (auto &triangle : triangles_) {
     triangle.v0 *= 2 / L;
     triangle.v1 *= 2 / L;
     triangle.v2 *= 2 / L;
@@ -91,13 +94,13 @@ inline void Model::LoadTestModel() {
     triangle.UpdateNormal();
   }
 
-  for (auto &sphere : spheres) {
-    sphere.radius *= 2 / L;
-    sphere.center *= 2 / L;
+  for (auto &sphere : spheres_) {
+    sphere.radius_ *= 2 / L;
+    sphere.center_ *= 2 / L;
 
-    sphere.center -= glm::vec3(1, 1, 1);
+    sphere.center_ -= glm::vec3(1, 1, 1);
 
-    sphere.center.x *= -1;
-    sphere.center.y *= -1;
+    sphere.center_.x *= -1;
+    sphere.center_.y *= -1;
   }
 }

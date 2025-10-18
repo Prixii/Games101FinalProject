@@ -97,8 +97,9 @@ private:
 
 template <int dim>
 inline bool KdTree<dim>::Build(const std::vector<PointType> &cloud) {
-  if (cloud.empty())
+  if (cloud.empty()) {
     return false;
+  }
 
   cloud_ = cloud;
   std::vector<size_t> cloud_idx(cloud_.size());
@@ -279,6 +280,7 @@ inline void KdTree<dim>::ComputeSplitParameters(
     const std::vector<size_t> &points_index, double &thre, int &axis,
     std::vector<size_t> &left, std::vector<size_t> &right) {
   using DimVector = Eigen::Matrix<double, dim, 1>;
+
   DimVector means;
   DimVector sum_of_points = std::accumulate(
       points_index.begin(), points_index.end(), DimVector(DimVector::Zero()),

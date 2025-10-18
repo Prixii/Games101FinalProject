@@ -1,19 +1,18 @@
 #include "Tools.h"
 #include <stdarg.h>
 
-bool StringStartsWith(const std::string& str, const std::string& prefix) {
-if (str.size() < prefix.size()) {
-		return false;
-	}
+bool StringStartsWith(const std::string &str, const std::string &prefix) {
+  if (str.size() < prefix.size()) {
+    return false;
+  }
 
-	for (size_t i = 0; i < prefix.size(); i++) {
-		if (str[i] != prefix[i]) {
-			return false;
-		}
-	}
-	return true;
+  for (size_t i = 0; i < prefix.size(); i++) {
+    if (str[i] != prefix[i]) {
+      return false;
+    }
+  }
+  return true;
 }
-
 
 void PrintWarn(const char *fmt, ...) {
   printf("\033[1;33m[Warning]:\033[0m ");
@@ -45,4 +44,8 @@ void PrintSuccess(const char *fmt, ...) {
   va_start(args, fmt);
   vprintf(fmt, args);
   va_end(args);
+}
+float GetRandomFloat(float min, float max) {
+  return min + static_cast<float>(rand()) /
+                   (static_cast<float>(RAND_MAX / (max - min)));
 }

@@ -1,34 +1,36 @@
 #include <SDL3/SDL.h>
+#include <vector>
 
-#include "SDLHelper.h"
+#include "KdTree.h"
 #include "Model.h"
-
+#include "Photon.h"
+#include "PhotonMapping.h"
+#include "PhotonMappingConfig.h"
+#include "SDL3/SDL_oldnames.h"
+#include "SDL3/SDL_surface.h"
+#include "SDLHelper.h"
 
 /// photon mapping
 /// KD tree
-
-
-
-
-constexpr auto WINDOW_WIDTH = 800;
-constexpr auto WINDOW_HEIGHT = 800;
-
-SDL_Window *window = nullptr;
 
 int main() {
 
   Model model;
   model.LoadTestModel();
 
+  std::vector<Photon> photons;
+  EmitPhotons(NUM_PHOTONS);
 
+  KdTree photon_map;
+  photon_map.SetPhotons(photons.data(), NUM_PHOTONS);
+  photon_map.BuildTree();
 
+  SDL_Window *window = nullptr;
+  auto screen = InitializeSDL(WINDOW_WIDTH, WINDOW_HEIGHT, window);
 
+  RayTrace(screen, window, model.triangles_, model.spheres_);
 
-
-
-
-  
-  InitializeSDL(WINDOW_WIDTH, WINDOW_HEIGHT, window);
+  SDL_SaveBMP(screen, "output.bmp");
 
   SDL_Event event;
   while (true) {

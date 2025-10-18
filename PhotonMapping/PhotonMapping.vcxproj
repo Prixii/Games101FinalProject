@@ -134,15 +134,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\general\Tools.cpp" />
+    <ClCompile Include="Intersection.cpp" />
+    <ClCompile Include="KdTree.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Photon.cpp" />
+    <ClCompile Include="PhotonMapping.cpp" />
+    <ClCompile Include="PhotonMappingConfig.h" />
     <ClCompile Include="SDLHelper.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\general\Tools.h" />
+    <ClInclude Include="Intersection.h" />
+    <ClInclude Include="KdTree.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Photon.h" />
+    <ClInclude Include="PhotonMapping.h" />
     <ClInclude Include="SDLHelper.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Triangle.h" />

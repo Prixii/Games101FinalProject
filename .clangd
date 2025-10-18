@@ -1,7 +1,7 @@
 CompileFlags:
   Add:
-    - "--include-directory=F:/vcpkg/installed/x64-windows/include"
+    - "-IF:/vcpkg/installed/x64-windows/include"
+    - "-ID:/sdk/c_third/SDL/include"
     - "-std=c++17"
 Diagnostics:
-  MissingIncludes: Strict
   UnusedIncludes: Strict
