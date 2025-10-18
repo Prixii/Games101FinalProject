@@ -9,7 +9,7 @@
 #define NOT_IMPLEMENTED                                                        \
   PrintErr("Not implemented func in %s:%d\n", __FILE__, __LINE__);             \
   exit(0);
-constexpr auto PI = 3.14159265358979323846; 
+constexpr auto PI = 3.14159265358979323846;
 
 bool StringStartsWith(const std::string &str, const std::string &prefix);
 void PrintWarn(const char *fmt, ...);
