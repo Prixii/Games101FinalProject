@@ -4,6 +4,7 @@
 #include "KdTree.h"
 #include "PhotonMapping.h"
 #include "PhotonMappingConfig.h"
+#include "PhotonUtils.h"
 #include "SDL3/SDL_surface.h"
 #include "SDLHelper.h"
 
@@ -13,6 +14,7 @@
 int main() {
   Model model;
   model.LoadTestModel();
+
 
   auto photons = EmitPhotons(NUM_PHOTONS, model);
 

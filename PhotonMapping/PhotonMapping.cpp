@@ -26,6 +26,7 @@ std::vector<Photon> *EmitPhotons(int num_photons, Model &model) {
     TracePhoton(p, model, *photons);
   }
 
+  PrintInfo("invisible_time:%d\n", invisible_time);
   PrintInfo("tracep2_time: %d\n", tracep2_time);
   PrintInfo("closet_not_found:%d\n", closet_not_found_time);
 
@@ -52,10 +53,18 @@ void TracePhoton(Photon &p, Model &model, std::vector<Photon> &photons) {
         Fresnel(glm::normalize(p.direction_),
                 glm::normalize(i.position_ - spheres[i.sphere_index_].center_));
     if (GetRandomFloat() < standard) {
-      Reflect(spheres[i.sphere_index_], glm::normalize(p.direction_), triangles,
-              spheres, i, j);
+      bool t = Reflect(spheres[i.sphere_index_], glm::normalize(p.direction_),
+                       triangles, spheres, i, j);
+      if (t && !j.IsSphere() && !j.IsTriangle()) {
+        PrintWarn("Nooooooo\n");
+      }
     } else {
-      Refract(spheres[i.sphere_index_], p.direction_, triangles, spheres, i, j);
+      // BUG Severe
+      bool t = Refract(spheres[i.sphere_index_], p.direction_, triangles,
+                       spheres, i, j);
+      if (t && !j.IsSphere() && !j.IsTriangle()) {
+        PrintWarn("Shit\n");
+      }
     }
 
     p.destination_ = j.position_;
@@ -67,8 +76,8 @@ void TracePhoton(Photon &p, Model &model, std::vector<Photon> &photons) {
       photons.push_back(p);
     }
   }
-  auto triangle = triangles[i.triangle_index_];
   if (p.bounces_ == 0 || GetRandomFloat() < 0.5) {
+    auto triangle = triangles[i.triangle_index_];
     Photon p2(GetRandomDirection(triangle.normal), i.position_,
               p.energy_ * triangle.color / (float)std::sqrt(p.bounces_ + 1),
               p.bounces_ + 1);

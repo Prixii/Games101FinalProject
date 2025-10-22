@@ -9,17 +9,17 @@ bool Sphere::Intersect(const glm::vec3 &start, const glm::vec3 &dir,
   auto center_trn = start - this->center_;
   float A = glm::dot(dir, dir);
   float B = 2.0 * glm::dot(dir, center_trn);
-  float C = dot(center_trn, center_trn) - pow(radius_, 2.0);
+  float C = glm::dot(center_trn, center_trn) - pow(radius_, 2.0);
   auto delta = pow(B, 2.0) - 4.0 * A * C;
 
   if (delta == 0.f) {
     t0 = t1 = -B / (2.0 * A);
-    x0 = x1 = start + t0 * dir;
+    x0 = start + t0 * dir;
     x1 = start + t1 * dir;
     return true;
   } else if (delta > 0.f) {
-    t0 = (-B - sqrt(delta)) / (2.0 * A);
-    t1 = (-B + sqrt(delta)) / (2.0 * A);
+    t0 = (-B + sqrt(delta)) / (2.0 * A);
+    t1 = (-B - sqrt(delta)) / (2.0 * A);
 
     if (t0 < 0 && t1 < 0) {
       return false;

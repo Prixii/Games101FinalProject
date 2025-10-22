@@ -1,4 +1,7 @@
 #include "PhotonUtils.h"
+
+int invisible_time = 0;
+
 bool ClosestIntersection(const glm::vec3 start, const glm::vec3 dir,
                          const std::vector<Triangle> &triangles,
                          const std::vector<Sphere> &spheres,
@@ -13,6 +16,7 @@ bool ClosestIntersection(const glm::vec3 start, const glm::vec3 dir,
 
   for (size_t ti = 0; ti < triangles.size(); ti++) {
     if (!IsVisible(triangles[ti].normal, dir)) {
+      invisible_time++;
       continue;
     }
 
@@ -29,11 +33,13 @@ bool ClosestIntersection(const glm::vec3 start, const glm::vec3 dir,
     if (spheres[si].Intersect(start, dir, x0, x1, t0, t1) &&
         ((t0 < intersection.distance_ && t0 > 0.0001) ||
          (t1 < intersection.distance_ && t1 > 0.0001))) {
+      intersects = true;
       intersection.position_ = t0 > 0 ? x0 : x1;
       intersection.distance_ = t0 > 0 ? t0 : t1;
       intersection.sphere_index_ = si;
     }
   }
+
   return intersects;
 }
 glm::vec3 DirectLight(const Intersection &i,

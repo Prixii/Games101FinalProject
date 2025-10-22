@@ -1,7 +1,7 @@
 #pragma once
 
-#include <limits>
 #include <glm/glm.hpp>
+#include <limits>
 #include <vector>
 
 #include "../general/Tools.h"
@@ -9,6 +9,8 @@
 #include "PhotonMappingConfig.h"
 #include "Sphere.h"
 #include "Triangle.h"
+
+extern int invisible_time;
 
 bool IsVisible(glm::vec3 v1, glm::vec3 v2);
 

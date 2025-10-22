@@ -26,28 +26,31 @@ bool Refract(const glm::vec3 &photon_dir, const glm::vec3 &surface_normal,
 
   return true;
 }
+
 bool Refract(const Sphere s, const glm::vec3 photon_dir,
              const std::vector<Triangle> &triangles,
              const std::vector<Sphere> &spheres, const Intersection &i,
              Intersection &j) {
   glm::vec3 sphere_normal = glm::normalize(i.position_ - s.center_);
-  glm::vec3 ti, tj;
+  glm::vec3 Ti, Tj;
 
-  if (!Refract(photon_dir, sphere_normal, ti)) {
+  if (!Refract(photon_dir, sphere_normal, Ti)) {
     return false;
   }
 
   glm::vec3 x0, x1;
   float t0, t1;
-  s.Intersect(i.position_, ti, x0, x1, t0, t1);
+  s.Intersect(i.position_, Ti, x0, x1, t0, t1);
   sphere_normal = glm::normalize(x1 - s.center_);
 
-  if (!Refract(ti, sphere_normal, tj)) {
+  if (!Refract(Ti, sphere_normal, Tj)) {
     return false;
   }
-  ClosestIntersection(x1, tj, triangles, spheres, j);
+  ClosestIntersection(x1, Tj, triangles, spheres, j);
   return true;
 }
+
+
 bool Reflect(const Sphere s, const glm::vec3 photon_dir,
              const std::vector<Triangle> &triangles,
              const std::vector<Sphere> &spheres, const Intersection &i,
