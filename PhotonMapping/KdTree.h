@@ -1,6 +1,9 @@
 #pragma once
 #include "Photon.h"
-#include "glm/ext/vector_float3.hpp"
+
+#include <algorithm>
+#include <cmath>
+#include <glm/glm.hpp>
 #include <numeric>
 #include <queue>
 #include <utility>
@@ -23,25 +26,18 @@ private:
 
   using KNNQueue = std::priority_queue<std::pair<float, int>>;
 
-  void BuildNode(int *indices, int n_photons, int depth) { NOT_IMPLEMENTED }
+  void BuildNode(int *indices, int n_photons, int depth);
 
   void SearchKNearestNode(int node_idx, const glm::vec3 &query_point, int k,
-                          KNNQueue &queue) const {
-    NOT_IMPLEMENTED
-  }
+                          KNNQueue &queue) const;
 
 public:
   KdTree() = default;
 
-  void SetPhotons(const Photon *photons, int num_photons) {
-    photons_ = photons;
-    num_photons_ = num_photons;
-  }
+  void SetPhotons(const Photon *photons, int num_photons);
 
-  void BuildTree() {
-    std::vector<int> indices(num_photons_);
-    iota(indices.begin(), indices.end(), 0);
+  void BuildTree();
 
-    BuildNode(indices.data(), num_photons_, 0);
-  }
+  std::vector<NeighborPhoton> SearchKNearest(const glm::vec3 &query_point,
+                                             int k, float &max_dist2) const;
 };

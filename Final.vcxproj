@@ -75,6 +75,10 @@
     <ExternalIncludePath>$(VCPKG_INS)\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>$(VCPKG_INS)\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ExternalIncludePath>$(VCPKG_INS)\include;$(C_THIRD)\SDL\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>$(VCPKG_INS)\lib;$(C_THIRD)\SDL\lib\x64;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -99,6 +103,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(C_THIRD)\SDL\lib\x64\SDL3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

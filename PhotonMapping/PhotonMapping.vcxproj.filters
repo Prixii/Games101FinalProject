@@ -48,6 +48,9 @@
     <ClCompile Include="KdTree.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="PhotonUtils.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SDLHelper.h">
@@ -75,6 +78,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="KdTree.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PhotonUtils.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

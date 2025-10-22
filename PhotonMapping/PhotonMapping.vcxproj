@@ -71,13 +71,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ExternalIncludePath>$(C_THIRD)\SDL3\include;$(VCPKG_INS)\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</ExternalIncludePath>
-    <LibraryPath>$(C_THIRD)\SDL3\lib\x64;$(VCPKG_INS)\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <ExternalIncludePath>$(VCPKG_INS)\include;$(C_THIRD)\SDL\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</ExternalIncludePath>
+    <LibraryPath>$(VCPKG_INS)\lib;$(C_THIRD)\SDL\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ExternalIncludePath>$(C_THIRD)\SDL\include;$(VCPKG_INS)\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</ExternalIncludePath>
-    <LibraryPath>$(C_THIRD)\SDL\lib\x64;$(VCPKG_INS)\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -114,7 +111,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(C_THIRD)\SDL3\lib\x64\SDL3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(C_THIRD)\SDL\lib\x64\SDL3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -141,6 +138,7 @@
     <ClCompile Include="Photon.cpp" />
     <ClCompile Include="PhotonMapping.cpp" />
     <ClCompile Include="PhotonMappingConfig.h" />
+    <ClCompile Include="PhotonUtils.cpp" />
     <ClCompile Include="SDLHelper.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Triangle.cpp" />
@@ -152,6 +150,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="Photon.h" />
     <ClInclude Include="PhotonMapping.h" />
+    <ClInclude Include="PhotonUtils.h" />
     <ClInclude Include="SDLHelper.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Triangle.h" />

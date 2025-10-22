@@ -1,9 +1,10 @@
 #include "Model.h"
 #include "Sphere.h"
 #include "Triangle.h"
-#include "glm/ext/vector_float3.hpp"
 
-inline void Model::LoadTestModel() {
+#include <glm/glm.hpp>
+
+void Model::LoadTestModel() {
   triangles_.clear();
   triangles_.reserve(5 * 2 * 3);
 

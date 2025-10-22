@@ -2,7 +2,6 @@
 #include <vector>
 
 #include "KdTree.h"
-#include "Photon.h"
 #include "PhotonMapping.h"
 #include "PhotonMappingConfig.h"
 #include "SDL3/SDL_surface.h"
@@ -18,13 +17,14 @@ int main() {
   auto photons = EmitPhotons(NUM_PHOTONS, model);
 
   KdTree photon_map;
-  photon_map.SetPhotons(photons.data(), NUM_PHOTONS);
+  photon_map.SetPhotons(photons->data(), NUM_PHOTONS);
   photon_map.BuildTree();
 
   SDL_Window *window = nullptr;
   auto screen = InitializeSDL(WINDOW_WIDTH, WINDOW_HEIGHT, window);
 
-  RayTrace(screen, window, model.triangles_, model.spheres_);
+  RayTrace(screen, window, photon_map, *photons, model.triangles_,
+           model.spheres_);
 
   SDL_SaveBMP(screen, "output.bmp");
 
