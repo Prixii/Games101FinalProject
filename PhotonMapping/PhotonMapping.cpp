@@ -113,6 +113,10 @@ void RayTrace(SDL_Surface *screen, SDL_Window *window, const KdTree &photon_map,
                                closet_intersection)) {
         continue;
       }
+      if (!closet_intersection.IsSphere() &&
+          !closet_intersection.IsTriangle()) {
+        int t = 1;
+      }
 
       if (closet_intersection.IsSphere()) {
         PutPixel(screen, x, y,
@@ -120,7 +124,7 @@ void RayTrace(SDL_Surface *screen, SDL_Window *window, const KdTree &photon_map,
                                    triangles, spheres));
       } else {
         PutPixel(screen, x, y,
-                 GetRadianceSphere(closet_intersection, photon_map, photons,
+                 GetRadianceTriangle(closet_intersection, photon_map, photons,
                                    triangles, spheres));
       }
       ///

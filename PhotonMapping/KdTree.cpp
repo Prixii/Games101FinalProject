@@ -43,6 +43,7 @@ void KdTree::BuildTree() {
 
   BuildNode(indices.data(), num_photons_, 0);
 }
+
 void KdTree::BuildNode(int *indices, int n_photons, int depth) {
   if (n_photons <= 0) {
     return;
@@ -65,7 +66,7 @@ void KdTree::BuildNode(int *indices, int n_photons, int depth) {
   nodes_.push_back(node);
 
   const auto left_child_idx = nodes_.size();
-  BuildNode(indices, n_photons, depth + 1);
+  BuildNode(indices, mid, depth + 1);
 
   if (left_child_idx == nodes_.size()) {
     nodes_[parent_idx].left_child_idx = -1;
