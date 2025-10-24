@@ -6,10 +6,10 @@
 
 void Model::LoadTestModel() {
 
-  const vec3 WHITE = vec3(1.0f, 1.0f, 1.0f);
-  const vec3 RED = vec3(1.0f, 0.0f, 0.0f);
-  const vec3 BLUE = vec3(0.0f, 0.0f, 1.0f);
-  const vec3 GREEN = vec3(0.0f, 1.0f, 0.0f);
+  const vec3 WHITE = vec3(0.95f, 0.95f, 0.95f);
+  const vec3 RED = vec3(0.95f, 0.35f, 0.35f);
+  const vec3 BLUE = vec3(0.35f, 0.35f, 0.95f);
+  const vec3 GREEN = vec3(0.35f, 0.95f, 0.35f);
 
   triangles_.clear();
   triangles_.reserve(5 * 2 * 3);
@@ -66,24 +66,24 @@ void Model::LoadTestModel() {
   H = vec3(314, 330, 456);
 
   // Front
-  triangles_.push_back(Triangle(E, B, A, WHITE));
-  triangles_.push_back(Triangle(E, F, B, WHITE));
+  triangles_.push_back(Triangle(E, B, A, GREEN));
+  triangles_.push_back(Triangle(E, F, B, GREEN));
 
   // Front
-  triangles_.push_back(Triangle(F, D, B, WHITE));
-  triangles_.push_back(Triangle(F, H, D, WHITE));
+  triangles_.push_back(Triangle(F, D, B, GREEN));
+  triangles_.push_back(Triangle(F, H, D, GREEN));
 
   // BACK
-  triangles_.push_back(Triangle(H, C, D, WHITE));
-  triangles_.push_back(Triangle(H, G, C, WHITE));
+  triangles_.push_back(Triangle(H, C, D, GREEN));
+  triangles_.push_back(Triangle(H, G, C, GREEN));
 
   // LEFT
-  triangles_.push_back(Triangle(G, E, C, WHITE));
-  triangles_.push_back(Triangle(E, A, C, WHITE));
+  triangles_.push_back(Triangle(G, E, C, GREEN));
+  triangles_.push_back(Triangle(E, A, C, GREEN));
 
   // TOP
-  triangles_.push_back(Triangle(G, F, E, WHITE));
-  triangles_.push_back(Triangle(G, H, F, WHITE));
+  triangles_.push_back(Triangle(G, F, E, GREEN));
+  triangles_.push_back(Triangle(G, H, F, GREEN));
 
   // Scale triangles_ to the volume [-1,1]^3
   for (size_t i = 0; i < triangles_.size(); ++i) {

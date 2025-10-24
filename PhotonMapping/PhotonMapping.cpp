@@ -185,7 +185,7 @@ vec3 GetRadianceTriangle(const Intersection &i, const KdTree &photon_map,
                             triangles[i.triangle_index_].normal_);
     delta_phi = std::max(effect, 0.f) * photons[neighbors[p].index_].energy_;
 
-    color += delta_phi * wpc;
+    color += wpc * delta_phi;
   }
 
   color /= (1 - 2 / (3 * CONE_FILTER_CONST) * PI * r_sqr);
