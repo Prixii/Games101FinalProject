@@ -1,5 +1,5 @@
 #include "KdTree.h"
-void KdTree::SearchKNearestNode(int node_idx, const glm::vec3 &query_point,
+void KdTree::SearchKNearestNode(int node_idx, const vec3 &query_point,
                                 int k, KNNQueue &queue) const {
   if (node_idx == -1 || node_idx >= nodes_.size())
     return;
@@ -82,7 +82,7 @@ void KdTree::BuildNode(int *indices, int n_photons, int depth) {
     nodes_[parent_idx].right_child_idx = right_child_idx;
   }
 }
-std::vector<NeighborPhoton> KdTree::SearchKNearest(const glm::vec3 &query_point,
+std::vector<NeighborPhoton> KdTree::SearchKNearest(const vec3 &query_point,
                                                    int k,
                                                    float &max_dist2) const {
   KNNQueue queue;

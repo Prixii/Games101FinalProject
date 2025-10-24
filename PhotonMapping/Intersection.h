@@ -1,8 +1,9 @@
 #pragma once
 #include <glm/glm.hpp>
+using namespace glm;
 
 struct Intersection {
-  glm::vec3 position_;
+  vec3 position_;
   float distance_;
   int sphere_index_;
   int triangle_index_;

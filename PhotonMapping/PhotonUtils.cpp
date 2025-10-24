@@ -2,7 +2,7 @@
 
 int invisible_time = 0;
 
-bool ClosestIntersection(const glm::vec3 start, const glm::vec3 dir,
+bool ClosestIntersection(const vec3 start, const vec3 dir,
                          const std::vector<Triangle> &triangles,
                          const std::vector<Sphere> &spheres,
                          Intersection &intersection) {
@@ -12,10 +12,10 @@ bool ClosestIntersection(const glm::vec3 start, const glm::vec3 dir,
 
   bool intersects = false;
   float t0, t1;
-  glm::vec3 x0, x1;
+  vec3 x0, x1;
 
   for (size_t ti = 0; ti < triangles.size(); ti++) {
-    if (!IsVisible(triangles[ti].normal, dir)) {
+    if (!IsVisible(triangles[ti].normal_, dir)) {
       invisible_time++;
       continue;
     }
@@ -42,22 +42,24 @@ bool ClosestIntersection(const glm::vec3 start, const glm::vec3 dir,
 
   return intersects;
 }
-glm::vec3 DirectLight(const Intersection &i,
+vec3 DirectLight(const Intersection &i,
                       const std::vector<Triangle> &triangles,
                       const std::vector<Sphere> &spheres) {
-  float r = glm::distance(LIGHT_POS, i.position_);
-  glm::vec3 r_hat = glm::normalize(LIGHT_POS - i.position_);
-  glm::vec3 n_hat = triangles[i.triangle_index_].normal;
+  float r = distance(LIGHT_POS, i.position_);
+  vec3 r_hat = normalize(LIGHT_POS - i.position_);
+  vec3 n_hat = triangles[i.triangle_index_].normal_;
 
   Intersection j;
-  if (ClosestIntersection(LIGHT_POS, glm::normalize(i.position_ - LIGHT_POS),
+  if (ClosestIntersection(LIGHT_POS, normalize(i.position_ - LIGHT_POS),
                           triangles, spheres, j)) {
-    if (j.sphere_index_ >= 0 || (glm::distance(LIGHT_POS, j.position_) < r &&
+    if (j.sphere_index_ >= 0 || (distance(LIGHT_POS, j.position_) < r &&
                                  i.triangle_index_ != j.triangle_index_)) {
-      return glm::vec3(0, 0, 0);
+      return vec3(0, 0, 0);
     }
   }
-  return (LIGHT_COLOR * std::max(glm::dot(r_hat, n_hat), 0.f)) /
+  return (LIGHT_COLOR * std::max(dot(r_hat, n_hat), 0.f)) /
          (4.f * PI * r * r);
 }
-bool IsVisible(glm::vec3 v1, glm::vec3 v2) { return glm::dot(v1, v2) <= 0.f; }
+bool IsVisible(vec3 v1, vec3 v2) { 
+  return dot(v1, v2) <= 0.f; 
+}

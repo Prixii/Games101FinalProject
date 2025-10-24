@@ -12,13 +12,13 @@
 
 extern int invisible_time;
 
-bool IsVisible(glm::vec3 v1, glm::vec3 v2);
+bool IsVisible(vec3 v1, vec3 v2);
 
-bool ClosestIntersection(const glm::vec3 start, const glm::vec3 dir,
+bool ClosestIntersection(const vec3 start, const vec3 dir,
                          const std::vector<Triangle> &triangles,
                          const std::vector<Sphere> &spheres,
                          Intersection &intersection);
 
-glm::vec3 DirectLight(const Intersection &i,
+vec3 DirectLight(const Intersection &i,
                       const std::vector<Triangle> &triangles,
                       const std::vector<Sphere> &spheres);

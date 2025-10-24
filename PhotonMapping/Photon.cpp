@@ -1,9 +1,10 @@
 #include "Photon.h"
 
-bool Refract(const glm::vec3 &photon_dir, const glm::vec3 &surface_normal,
-             glm::vec3 &T, const float &ior) {
+bool Refract(const vec3 &photon_dir, const vec3 &surface_normal,
+             vec3 &T, const float &ior) {
   auto N = surface_normal;
-  float cosi = glm::clamp(-1.f, 1.f, glm::dot(photon_dir, N));
+  //PrintInfo("dot result: %f", dot(photon_dir, N));
+  float cosi = clamp(dot(photon_dir, N) ,- 1.0f, 1.0f);
   float n1 = 1;
   float n2 = ior;
   float n, c;
@@ -27,21 +28,25 @@ bool Refract(const glm::vec3 &photon_dir, const glm::vec3 &surface_normal,
   return true;
 }
 
-bool Refract(const Sphere s, const glm::vec3 photon_dir,
+bool Refract(const Sphere s, const vec3 photon_dir,
              const std::vector<Triangle> &triangles,
              const std::vector<Sphere> &spheres, const Intersection &i,
              Intersection &j) {
-  glm::vec3 sphere_normal = glm::normalize(i.position_ - s.center_);
-  glm::vec3 Ti, Tj;
-
+  vec3 sphere_normal = normalize(i.position_ - s.center_);
+  vec3 Ti, Tj;
+  //PrintInfo(
+  //    "Sphere Normal: %.3f,%.3f,%.3f, PhotonDir: %.3f,%.3f,%.3f; dot result: "
+  //    "%.3f\n",
+  //    sphere_normal.x, sphere_normal.y, sphere_normal.z, photon_dir.x,
+  //    photon_dir.y, photon_dir.z, dot(photon_dir, sphere_normal));
   if (!Refract(photon_dir, sphere_normal, Ti)) {
     return false;
   }
 
-  glm::vec3 x0, x1;
+  vec3 x0, x1;
   float t0, t1;
   s.Intersect(i.position_, Ti, x0, x1, t0, t1);
-  sphere_normal = glm::normalize(x1 - s.center_);
+  sphere_normal = normalize(x1 - s.center_);
 
   if (!Refract(Ti, sphere_normal, Tj)) {
     return false;
@@ -51,20 +56,20 @@ bool Refract(const Sphere s, const glm::vec3 photon_dir,
 }
 
 
-bool Reflect(const Sphere s, const glm::vec3 photon_dir,
+bool Reflect(const Sphere s, const vec3 photon_dir,
              const std::vector<Triangle> &triangles,
              const std::vector<Sphere> &spheres, const Intersection &i,
              Intersection &j) {
-  auto sphere_normal = glm::normalize(i.position_ - s.center_);
+  auto sphere_normal = normalize(i.position_ - s.center_);
   auto dir_reflect =
-      photon_dir - 2.f * sphere_normal * glm::dot(photon_dir, sphere_normal);
+      photon_dir - 2.f * sphere_normal * dot(photon_dir, sphere_normal);
 
   return ClosestIntersection(i.position_, dir_reflect, triangles, spheres, j);
 }
-float Fresnel(glm::vec3 photon_dir, glm::vec3 surface_normal,
+float Fresnel(vec3 photon_dir, vec3 surface_normal,
               const float &ior) {
   float r0 = pow(1.f - ior, 2.f) / pow(1.f + ior, 2.f);
-  float cosx = -glm::dot(surface_normal, photon_dir);
+  float cosx = -dot(surface_normal, photon_dir);
 
   return r0 + (1.f - r0) * pow(1.f - cosx, 5.f);
 }

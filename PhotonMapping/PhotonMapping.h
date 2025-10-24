@@ -24,12 +24,12 @@ std::vector<Photon> *EmitPhotons(int num_photons, Model &model);
 
 void TracePhoton(Photon &p, Model &model, std::vector<Photon> &photons);
 
-glm::vec3 GetRadianceSphere(const Intersection &i, const KdTree &photon_map,
+vec3 GetRadianceSphere(const Intersection &i, const KdTree &photon_map,
                             const std::vector<Photon> &photons,
                             const std::vector<Triangle> &triangles,
                             const std::vector<Sphere> &spheres);
 
-glm::vec3 GetRadianceTriangle(const Intersection &i, const KdTree &photon_map,
+vec3 GetRadianceTriangle(const Intersection &i, const KdTree &photon_map,
                               const std::vector<Photon> &photons,
                               const std::vector<Triangle> &triangles,
                               const std::vector<Sphere> &spheres);

@@ -1,15 +1,15 @@
 #include "Sphere.h"
 
-Sphere::Sphere(const glm::vec3 &c, float r) : center_(c), radius_(r) {}
+Sphere::Sphere(const vec3 &c, float r) : center_(c), radius_(r) {}
 
-Sphere::Sphere() : center_(glm::vec3(0.0f)), radius_(1.0f) {}
-bool Sphere::Intersect(const glm::vec3 &start, const glm::vec3 &dir,
-                       glm::vec3 &x0, glm::vec3 &x1, float &t0,
+Sphere::Sphere() : center_(vec3(0.0f)), radius_(1.0f) {}
+bool Sphere::Intersect(const vec3 &start, const vec3 &dir,
+                       vec3 &x0, vec3 &x1, float &t0,
                        float &t1) const {
   auto center_trn = start - this->center_;
-  float A = glm::dot(dir, dir);
-  float B = 2.0 * glm::dot(dir, center_trn);
-  float C = glm::dot(center_trn, center_trn) - pow(radius_, 2.0);
+  float A = dot(dir, dir);
+  float B = 2.0 * dot(dir, center_trn);
+  float C = dot(center_trn, center_trn) - pow(radius_, 2.0);
   auto delta = pow(B, 2.0) - 4.0 * A * C;
 
   if (delta == 0.f) {

@@ -28,7 +28,7 @@ private:
 
   void BuildNode(int *indices, int n_photons, int depth);
 
-  void SearchKNearestNode(int node_idx, const glm::vec3 &query_point, int k,
+  void SearchKNearestNode(int node_idx, const vec3 &query_point, int k,
                           KNNQueue &queue) const;
 
 public:
@@ -38,6 +38,6 @@ public:
 
   void BuildTree();
 
-  std::vector<NeighborPhoton> SearchKNearest(const glm::vec3 &query_point,
+  std::vector<NeighborPhoton> SearchKNearest(const vec3 &query_point,
                                              int k, float &max_dist2) const;
 };

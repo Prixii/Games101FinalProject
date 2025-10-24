@@ -9,7 +9,7 @@ int tracep2_time = 0;
 
 std::vector<Photon> *EmitPhotons(int num_photons, Model &model) {
   float x, y, z;
-  glm::vec3 photon_dir;
+  vec3 photon_dir;
 
   std::vector<Photon> *photons = new std::vector<Photon>();
 
@@ -20,7 +20,7 @@ std::vector<Photon> *EmitPhotons(int num_photons, Model &model) {
       z = GetRandomFloat();
     } while (x * x + y * y + z * z > 1);
 
-    photon_dir = glm::vec3(x, y, z);
+    photon_dir = vec3(x, y, z);
 
     Photon p(photon_dir, LIGHT_POS, LIGHT_POWER / (float)num_photons, 0);
     TracePhoton(p, model, *photons);
@@ -36,7 +36,7 @@ std::vector<Photon> *EmitPhotons(int num_photons, Model &model) {
 void TracePhoton(Photon &p, Model &model, std::vector<Photon> &photons) {
   Intersection i, j;
 
-  glm::vec3 x0, x1;
+  vec3 x0, x1;
   float t0, t1;
 
   auto &spheres = model.spheres_;
@@ -50,10 +50,10 @@ void TracePhoton(Photon &p, Model &model, std::vector<Photon> &photons) {
 
   if (i.IsSphere()) {
     auto standard =
-        Fresnel(glm::normalize(p.direction_),
-                glm::normalize(i.position_ - spheres[i.sphere_index_].center_));
+        Fresnel(normalize(p.direction_),
+                normalize(i.position_ - spheres[i.sphere_index_].center_));
     if (GetRandomFloat() < standard) {
-      bool t = Reflect(spheres[i.sphere_index_], glm::normalize(p.direction_),
+      bool t = Reflect(spheres[i.sphere_index_], normalize(p.direction_),
                        triangles, spheres, i, j);
       if (t && !j.IsSphere() && !j.IsTriangle()) {
         PrintWarn("Nooooooo\n");
@@ -78,8 +78,8 @@ void TracePhoton(Photon &p, Model &model, std::vector<Photon> &photons) {
   }
   if (p.bounces_ == 0 || GetRandomFloat() < 0.5) {
     auto triangle = triangles[i.triangle_index_];
-    Photon p2(GetRandomDirection(triangle.normal), i.position_,
-              p.energy_ * triangle.color / (float)std::sqrt(p.bounces_ + 1),
+    Photon p2(GetRandomDirection(triangle.normal_), i.position_,
+              p.energy_ * triangle.color_ / (float)std::sqrt(p.bounces_ + 1),
               p.bounces_ + 1);
     ////////
     tracep2_time++;
@@ -108,7 +108,7 @@ void RayTrace(SDL_Surface *screen, SDL_Window *window, const KdTree &photon_map,
   for (int y = 0; y < WINDOW_HEIGHT; ++y) {
     for (int x = 0; x < WINDOW_WIDTH; ++x) {
       ///
-      glm::vec3 dir(x - WINDOW_WIDTH / 2, y - WINDOW_HEIGHT / 2, FOCAL_LENGTH);
+      vec3 dir(x - WINDOW_WIDTH / 2, y - WINDOW_HEIGHT / 2, FOCAL_LENGTH);
       if (!ClosestIntersection(CAMERA_POS, dir, triangles, spheres,
                                closet_intersection)) {
         continue;
@@ -138,22 +138,22 @@ void RayTrace(SDL_Surface *screen, SDL_Window *window, const KdTree &photon_map,
   }
   SDL_UpdateWindowSurface(window);
 }
-glm::vec3 GetRadianceSphere(const Intersection &i, const KdTree &photon_map,
+vec3 GetRadianceSphere(const Intersection &i, const KdTree &photon_map,
                             const std::vector<Photon> &photons,
                             const std::vector<Triangle> &triangles,
                             const std::vector<Sphere> &spheres) {
   Intersection intersection_refract, intersection_reflect;
 
-  Refract(spheres[i.sphere_index_], glm::normalize(i.position_ - CAMERA_POS),
+  Refract(spheres[i.sphere_index_], normalize(i.position_ - CAMERA_POS),
           triangles, spheres, i, intersection_refract);
 
   float f =
-      Fresnel(glm::normalize(i.position_ - CAMERA_POS),
-              glm::normalize(i.position_ - spheres[i.sphere_index_].center_));
+      Fresnel(normalize(i.position_ - CAMERA_POS),
+              normalize(i.position_ - spheres[i.sphere_index_].center_));
 
   float c = std::max(1.f, 1.7f * f);
 
-  Reflect(spheres[i.sphere_index_], glm::normalize(i.position_ - CAMERA_POS),
+  Reflect(spheres[i.sphere_index_], normalize(i.position_ - CAMERA_POS),
           triangles, spheres, i, intersection_reflect);
 
   return (1 - c) * GetRadianceTriangle(intersection_refract, photon_map,
@@ -161,12 +161,12 @@ glm::vec3 GetRadianceSphere(const Intersection &i, const KdTree &photon_map,
          c * GetRadianceTriangle(intersection_reflect, photon_map, photons,
                                  triangles, spheres);
 }
-glm::vec3 GetRadianceTriangle(const Intersection &i, const KdTree &photon_map,
+vec3 GetRadianceTriangle(const Intersection &i, const KdTree &photon_map,
                               const std::vector<Photon> &photons,
                               const std::vector<Triangle> &triangles,
                               const std::vector<Sphere> &spheres) {
-  glm::vec3 color(0, 0, 0);
-  glm::vec3 delta_phi;
+  vec3 color(0, 0, 0);
+  vec3 delta_phi;
   float wpc;
   float dp;
   float r_sqr = 0.f;
@@ -175,10 +175,10 @@ glm::vec3 GetRadianceTriangle(const Intersection &i, const KdTree &photon_map,
       photon_map.SearchKNearest(i.position_, K_NEAREST, r_sqr);
   for (size_t p = 0; p < neighbors.size(); p++) {
     dp = neighbors[p].dist_;
-    wpc = 1 - dp / (CONE_FILTER_CONST * glm::sqrt(r_sqr));
+    wpc = 1 - dp / (CONE_FILTER_CONST * sqrt(r_sqr));
 
-    float effect = glm::dot(-photons[neighbors[p].index_].direction_,
-                            triangles[i.triangle_index_].normal);
+    float effect = dot(-photons[neighbors[p].index_].direction_,
+                            triangles[i.triangle_index_].normal_);
     delta_phi = std::max(effect, 0.f) * photons[neighbors[p].index_].energy_;
 
     color += delta_phi * wpc;

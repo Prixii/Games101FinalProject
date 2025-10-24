@@ -1,16 +1,19 @@
 #pragma once
 #include <glm/glm.hpp>
+
+using namespace glm;
+
 class Triangle {
 public:
-  glm::vec3 v0, v1, v2;
-  glm::vec3 normal;
-  glm::vec3 color;
+  vec3 v0_, v1_, v2_;
+  vec3 normal_;
+  vec3 color_;
 
-  Triangle(glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, glm::vec3 color);
+  Triangle(vec3 v0, vec3 v1, vec3 v2, vec3 color);
   Triangle();
 
   void UpdateNormal();
 
-  bool Intersect(const glm::vec3 &ray_origin, const glm::vec3 &ray_direction,
-                 glm::vec3 &x0, float &t0) const;
+  bool Intersect(const vec3 &ray_origin, const vec3 &ray_direction,
+                 vec3 &x0, float &t0) const;
 };
