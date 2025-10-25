@@ -14,7 +14,7 @@ constexpr auto FOCAL_LENGTH = WINDOW_HEIGHT;
 
 constexpr vec3 CAMERA_POS(0, 0, -3);
 
-constexpr auto NUM_PHOTONS = 50'000;
+constexpr auto NUM_PHOTONS = 5'000'000;
 
 constexpr auto K_NEAREST = 550;
 constexpr auto CONE_FILTER_CONST = 1.2f;

@@ -34,11 +34,7 @@ bool Refract(const Sphere s, const vec3 photon_dir,
              Intersection &j) {
   vec3 sphere_normal = normalize(i.position_ - s.center_);
   vec3 Ti, Tj;
-  //PrintInfo(
-  //    "Sphere Normal: %.3f,%.3f,%.3f, PhotonDir: %.3f,%.3f,%.3f; dot result: "
-  //    "%.3f\n",
-  //    sphere_normal.x, sphere_normal.y, sphere_normal.z, photon_dir.x,
-  //    photon_dir.y, photon_dir.z, dot(photon_dir, sphere_normal));
+
   if (!Refract(photon_dir, sphere_normal, Ti)) {
     return false;
   }

@@ -107,7 +107,6 @@ void RayTrace(SDL_Surface *screen, SDL_Window *window, const KdTree &photon_map,
 
   for (int y = 0; y < WINDOW_HEIGHT; ++y) {
     for (int x = 0; x < WINDOW_WIDTH; ++x) {
-      ///
       vec3 dir(x - WINDOW_WIDTH / 2, y - WINDOW_HEIGHT / 2, FOCAL_LENGTH);
       if (!ClosestIntersection(CAMERA_POS, dir, triangles, spheres,
                                closet_intersection)) {
@@ -118,16 +117,16 @@ void RayTrace(SDL_Surface *screen, SDL_Window *window, const KdTree &photon_map,
         int t = 1;
       }
 
+      vec3 color;
+
       if (closet_intersection.IsSphere()) {
-        PutPixel(screen, x, y,
-                 GetRadianceSphere(closet_intersection, photon_map, photons,
-                                   triangles, spheres));
+        color = GetRadianceSphere(closet_intersection, photon_map, photons,
+                                  triangles, spheres);
       } else {
-        PutPixel(screen, x, y,
-                 GetRadianceTriangle(closet_intersection, photon_map, photons,
-                                   triangles, spheres));
+        color = GetRadianceTriangle(closet_intersection, photon_map, photons,
+                                    triangles, spheres);
       }
-      ///
+      PutPixel(screen, x, y, color);
 
       pixels_drawn++;
       if (pixels_drawn % update_interval == 0 && pixels_drawn > 0) {
@@ -136,6 +135,7 @@ void RayTrace(SDL_Surface *screen, SDL_Window *window, const KdTree &photon_map,
       }
     }
   }
+  printf("\n");
 
   if (SDL_MUSTLOCK(screen)) {
     SDL_UnlockSurface(screen);
@@ -143,32 +143,33 @@ void RayTrace(SDL_Surface *screen, SDL_Window *window, const KdTree &photon_map,
   SDL_UpdateWindowSurface(window);
 }
 vec3 GetRadianceSphere(const Intersection &i, const KdTree &photon_map,
-                            const std::vector<Photon> &photons,
-                            const std::vector<Triangle> &triangles,
-                            const std::vector<Sphere> &spheres) {
+                       const std::vector<Photon> &photons,
+                       const std::vector<Triangle> &triangles,
+                       const std::vector<Sphere> &spheres) {
   Intersection intersection_refract, intersection_reflect;
 
   Refract(spheres[i.sphere_index_], normalize(i.position_ - CAMERA_POS),
           triangles, spheres, i, intersection_refract);
 
-  float f =
-      Fresnel(normalize(i.position_ - CAMERA_POS),
-              normalize(i.position_ - spheres[i.sphere_index_].center_));
+  float f = Fresnel(normalize(i.position_ - CAMERA_POS),
+                    normalize(i.position_ - spheres[i.sphere_index_].center_));
 
   float c = std::max(1.f, 1.7f * f);
 
   Reflect(spheres[i.sphere_index_], normalize(i.position_ - CAMERA_POS),
           triangles, spheres, i, intersection_reflect);
 
-  return (1 - c) * GetRadianceTriangle(intersection_refract, photon_map,
-                                       photons, triangles, spheres) +
-         c * GetRadianceTriangle(intersection_reflect, photon_map, photons,
-                                 triangles, spheres);
+  auto refract_color = GetRadianceTriangle(intersection_refract, photon_map,
+                                           photons, triangles, spheres);
+  auto reflect_color = GetRadianceTriangle(intersection_reflect, photon_map,
+                                           photons, triangles, spheres);
+  return (1 - c) * refract_color + c * reflect_color;
 }
+
 vec3 GetRadianceTriangle(const Intersection &i, const KdTree &photon_map,
-                              const std::vector<Photon> &photons,
-                              const std::vector<Triangle> &triangles,
-                              const std::vector<Sphere> &spheres) {
+                         const std::vector<Photon> &photons,
+                         const std::vector<Triangle> &triangles,
+                         const std::vector<Sphere> &spheres) {
   vec3 color(0, 0, 0);
   vec3 delta_phi;
   float wpc;
@@ -182,7 +183,7 @@ vec3 GetRadianceTriangle(const Intersection &i, const KdTree &photon_map,
     wpc = 1 - dp / (CONE_FILTER_CONST * sqrt(r_sqr));
 
     float effect = dot(-photons[neighbors[p].index_].direction_,
-                            triangles[i.triangle_index_].normal_);
+                       triangles[i.triangle_index_].normal_);
     delta_phi = std::max(effect, 0.f) * photons[neighbors[p].index_].energy_;
 
     color += wpc * delta_phi;
@@ -190,6 +191,7 @@ vec3 GetRadianceTriangle(const Intersection &i, const KdTree &photon_map,
 
   color /= (1 - 2 / (3 * CONE_FILTER_CONST) * PI * r_sqr);
   color += DirectLight(i, triangles, spheres);
+  color *= triangles[i.triangle_index_].color_;
 
   return color;
 }
