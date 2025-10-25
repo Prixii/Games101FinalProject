@@ -43,8 +43,6 @@ void TracePhoton(Photon &p, Model &model, std::vector<Photon> &photons) {
   auto &triangles = model.triangles_;
 
   if (!ClosestIntersection(p.source_, p.direction_, triangles, spheres, i)) {
-    ////////
-    closet_not_found_time++;
     return;
   }
 
@@ -53,18 +51,11 @@ void TracePhoton(Photon &p, Model &model, std::vector<Photon> &photons) {
         Fresnel(normalize(p.direction_),
                 normalize(i.position_ - spheres[i.sphere_index_].center_));
     if (GetRandomFloat() < standard) {
-      bool t = Reflect(spheres[i.sphere_index_], normalize(p.direction_),
+      Reflect(spheres[i.sphere_index_], normalize(p.direction_),
                        triangles, spheres, i, j);
-      if (t && !j.IsSphere() && !j.IsTriangle()) {
-        PrintWarn("Nooooooo\n");
-      }
     } else {
-      // BUG Severe
-      bool t = Refract(spheres[i.sphere_index_], p.direction_, triangles,
+      Refract(spheres[i.sphere_index_], p.direction_, triangles,
                        spheres, i, j);
-      if (t && !j.IsSphere() && !j.IsTriangle()) {
-        PrintWarn("Shit\n");
-      }
     }
 
     p.destination_ = j.position_;
@@ -77,7 +68,7 @@ void TracePhoton(Photon &p, Model &model, std::vector<Photon> &photons) {
     }
   }
   if (p.bounces_ == 0 || GetRandomFloat() < 0.5) {
-    auto triangle = triangles[i.triangle_index_];
+    auto &triangle = triangles[i.triangle_index_];
     Photon p2(GetRandomDirection(triangle.normal_), i.position_,
               p.energy_ * triangle.color_ / (float)std::sqrt(p.bounces_ + 1),
               p.bounces_ + 1);
@@ -188,8 +179,8 @@ vec3 GetRadianceTriangle(const Intersection &i, const KdTree &photon_map,
 
     color += wpc * delta_phi;
   }
-
-  color /= (1 - 2 / (3 * CONE_FILTER_CONST) * PI * r_sqr);
+  auto cone_size = (1 - 2 / (3 * CONE_FILTER_CONST)) * PI * r_sqr;
+  color /= (cone_size * 10);
   color += DirectLight(i, triangles, spheres);
   color *= triangles[i.triangle_index_].color_;
 
