@@ -5,14 +5,6 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Global|Win32">
-      <Configuration>Global</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Global|x64">
-      <Configuration>Global</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -29,10 +21,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{f60f469b-bbe3-42e2-ac86-894842d0edc8}</ProjectGuid>
-    <RootNamespace>Final</RootNamespace>
+    <ProjectGuid>{8aeeec28-9ed5-4bdf-a799-a2c5b9936814}</ProjectGuid>
+    <RootNamespace>ProgressivePhotonMapping</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>CatmullClarkTessellation</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -61,12 +52,6 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Global|Win32'">
-    <PlatformToolset>v143</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Global|x64'">
-    <PlatformToolset>v143</PlatformToolset>
-  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -86,12 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ExternalIncludePath>$(VCPKG_INS)\include;$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>$(VCPKG_INS)\lib;$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ExternalIncludePath>$(VCPKG_INS)\include;$(C_THIRD)\SDL\include;$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>$(VCPKG_INS)\lib;$(C_THIRD)\SDL\lib\x64;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
+    <ExternalIncludePath>$(VCPKG_INS)\include;$(C_THIRD)\SDL3\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</ExternalIncludePath>
+    <LibraryPath>$(VCPKG_INS)\lib;$(C_THIRD)\SDL3\lib\x64;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -117,7 +98,6 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(C_THIRD)\SDL\lib\x64\SDL3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -130,7 +110,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3dll.lib;glad.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(C_THIRD)\SDL3\lib\x64\SDL3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -148,22 +128,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CatmullClarkTessellation\Face.cpp" />
-    <ClCompile Include="CatmullClarkTessellation\HalfEdge.cpp" />
-    <ClCompile Include="CatmullClarkTessellation\main.cpp" />
-    <ClCompile Include="CatmullClarkTessellation\Model.cpp" />
-    <ClCompile Include="CatmullClarkTessellation\TwoPointIndex.cpp" />
-    <ClCompile Include="CatmullClarkTessellation\Vertex.cpp" />
-    <ClCompile Include="general\Tools.cpp" />
+    <ClCompile Include="..\general\Tools.cpp" />
+    <ClCompile Include="HitPoint.cpp" />
+    <ClCompile Include="Intersection.cpp" />
+    <ClCompile Include="KdTree.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Photon.cpp" />
+    <ClCompile Include="ProgressivePhotonMapping.cpp" />
+    <ClCompile Include="ProgressivePhotonUtils.cpp" />
+    <ClCompile Include="SDLHelper.cpp" />
+    <ClCompile Include="Sphere.cpp" />
+    <ClCompile Include="Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CatmullClarkTessellation\Face.h" />
-    <ClInclude Include="CatmullClarkTessellation\HalfEdge.h" />
-    <ClInclude Include="CatmullClarkTessellation\Model.h" />
-    <ClInclude Include="CatmullClarkTessellation\TwoPointIndex.h" />
-    <ClInclude Include="CatmullClarkTessellation\TypeAlias.h" />
-    <ClInclude Include="CatmullClarkTessellation\Vertex.h" />
-    <ClInclude Include="general\Tools.h" />
+    <ClInclude Include="..\general\Tools.h" />
+    <ClInclude Include="HitPoint.h" />
+    <ClInclude Include="Intersection.h" />
+    <ClInclude Include="KdTree.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="Photon.h" />
+    <ClInclude Include="ProgressivePhotonMapping.h" />
+    <ClInclude Include="ProgressivePhotonMappingConfig.h" />
+    <ClInclude Include="ProgressivePhotonUtils.h" />
+    <ClInclude Include="SDLHelper.h" />
+    <ClInclude Include="Sphere.h" />
+    <ClInclude Include="Triangle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

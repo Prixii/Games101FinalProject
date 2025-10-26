@@ -1,7 +1,5 @@
 #pragma once
 
-#include "glm/exponential.hpp"
-#include "glm/ext/vector_float3.hpp"
 #include <cmath>
 #include <glm/glm.hpp>
 #include <string>

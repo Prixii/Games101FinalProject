@@ -1,11 +1,9 @@
 #include <SDL3/SDL.h>
-
 #include <vector>
 
 #include "KdTree.h"
 #include "PhotonMapping.h"
 #include "PhotonMappingConfig.h"
-#include "PhotonUtils.h"
 #include "SDL3/SDL_surface.h"
 #include "SDLHelper.h"
 

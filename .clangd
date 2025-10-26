@@ -1,7 +1,7 @@
 CompileFlags:
   Add:
     - "-IF:/vcpkg/installed/x64-windows/include"
-    - "-ID:/sdk/c_third/SDL/include"
+    - "-ID:/sdk/c_third/SDL3/include"
     - "-ID:/SDKs/c_third_party/SDL3/include"
     - "-ID:/SDKs/vcpkg/installed/x64-windows/include"
     - "-std=c++17"
