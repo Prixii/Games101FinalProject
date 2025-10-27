@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KDTree", "KDTree\KDTree.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProgressivePhotonMapping", "ProgressivePhotonMapping\ProgressivePhotonMapping.vcxproj", "{8AEEEC28-9ED5-4BDF-A799-A2C5B9936814}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultipleImportanceSampling", "MultipleImportanceSampling\MultipleImportanceSampling.vcxproj", "{2F76F650-8870-44A4-BD8B-5E36D0AD711D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -81,6 +83,18 @@ Global
 		{8AEEEC28-9ED5-4BDF-A799-A2C5B9936814}.Release|x64.Build.0 = Release|x64
 		{8AEEEC28-9ED5-4BDF-A799-A2C5B9936814}.Release|x86.ActiveCfg = Release|Win32
 		{8AEEEC28-9ED5-4BDF-A799-A2C5B9936814}.Release|x86.Build.0 = Release|Win32
+		{2F76F650-8870-44A4-BD8B-5E36D0AD711D}.Debug|x64.ActiveCfg = Debug|x64
+		{2F76F650-8870-44A4-BD8B-5E36D0AD711D}.Debug|x64.Build.0 = Debug|x64
+		{2F76F650-8870-44A4-BD8B-5E36D0AD711D}.Debug|x86.ActiveCfg = Debug|Win32
+		{2F76F650-8870-44A4-BD8B-5E36D0AD711D}.Debug|x86.Build.0 = Debug|Win32
+		{2F76F650-8870-44A4-BD8B-5E36D0AD711D}.Global|x64.ActiveCfg = Debug|x64
+		{2F76F650-8870-44A4-BD8B-5E36D0AD711D}.Global|x64.Build.0 = Debug|x64
+		{2F76F650-8870-44A4-BD8B-5E36D0AD711D}.Global|x86.ActiveCfg = Debug|Win32
+		{2F76F650-8870-44A4-BD8B-5E36D0AD711D}.Global|x86.Build.0 = Debug|Win32
+		{2F76F650-8870-44A4-BD8B-5E36D0AD711D}.Release|x64.ActiveCfg = Release|x64
+		{2F76F650-8870-44A4-BD8B-5E36D0AD711D}.Release|x64.Build.0 = Release|x64
+		{2F76F650-8870-44A4-BD8B-5E36D0AD711D}.Release|x86.ActiveCfg = Release|Win32
+		{2F76F650-8870-44A4-BD8B-5E36D0AD711D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
