@@ -48,6 +48,14 @@ bool Refract(const Sphere s, const vec3 photon_dir,
     return false;
   }
   ClosestIntersection(x1, Tj, triangles, spheres, j);
+
+  
+  if (!j.IsTriangle() && !j.IsSphere()) {
+    int p = 1;
+  }
+
+
+
   return true;
 }
 

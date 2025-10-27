@@ -4,7 +4,6 @@
 
 using namespace glm;
 
-
 constexpr vec3 LIGHT_POS(0, -0.5, -0.4);
 constexpr vec3 LIGHT_COLOR = 5.f * vec3(1.0f, 1.0f, 0.95f);
 constexpr vec3 LIGHT_POWER = 250.f * vec3(1, 1, 0.95);
@@ -29,3 +28,9 @@ constexpr vec3 BLUE(0.35f, 0.35f, 0.95f);
 
 constexpr auto LAMBDA_LIMIT = 1e-9;
 constexpr auto BOUNCE_LIMIT = 5;
+
+constexpr auto TOTAL_ROUND = 10;
+constexpr auto ROUND_DECAY = 0.95f;
+constexpr auto INITIAL_RADIUS = 5.f/555;
+constexpr auto RADIUS_DECAY = 0.95f;
+constexpr auto ENERGY_DECAY = 0.95f;

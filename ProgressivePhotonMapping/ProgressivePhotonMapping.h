@@ -24,8 +24,6 @@
 #include <numeric>
 #include <vector>
 
-
-
 using namespace glm;
 
 std::vector<Photon> *EmitPhotons(int num_photons, Model &model);
@@ -48,8 +46,10 @@ void RayTrace(SDL_Surface *screen, SDL_Window *window, const KdTree &photon_map,
               const std::vector<Sphere> &spheres);
 
 void SinglePassRayTracing(Model &model, vec3 ray_origin, vec3 ray_dir,
-                          vec3 color, int bounce, double dist,
-                          vec2 pos, std::vector<vec3> pixels,
-                          std::vector<HitPoint> hit_points);
+                          vec3 color, int bounce, double dist, vec2 pos,
+                          std::vector<vec3> &pixels,
+                          std::vector<HitPoint> &hit_points);
 
 std::vector<HitPoint> RayTracing(SDL_Surface *screen, Model &model);
+
+std::vector<HitPoint> TestRayTracing(SDL_Surface *screen, Model &model);

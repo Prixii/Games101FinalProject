@@ -40,6 +40,10 @@ bool ClosestIntersection(const vec3 start, const vec3 dir,
     }
   }
 
+  if (intersects && !intersection.IsSphere() && !intersection.IsTriangle()) {
+    int i = 0;
+  }
+
   return intersects;
 }
 vec3 DirectLight(const Intersection &i,

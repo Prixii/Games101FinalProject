@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <glm/glm.hpp>
 #include <string>
@@ -19,3 +20,5 @@ float GetRandomFloat(float min = 0.0f, float max = 1.0f);
 glm::vec3 GetRandomDirection(const glm::vec3 &normal);
 
 float GetSqrDist(const glm::vec3 a, const glm::vec3 b);
+
+int GetIndex(float x, float y, int width, int height);

@@ -1,4 +1,4 @@
-#include "PhotonMapping.h"
+﻿#include "PhotonMapping.h"
 
 #include <cmath>
 #include <utility>
@@ -82,57 +82,86 @@ void RayTrace(SDL_Surface *screen, SDL_Window *window, const KdTree &photon_map,
               const std::vector<Photon> &photons,
               const std::vector<Triangle> &triangles,
               const std::vector<Sphere> &spheres) {
+  // 1. Surface 锁定 (已是线程安全措施)
   if (SDL_MUSTLOCK(screen)) {
     SDL_LockSurface(screen);
   }
+
+  // 填充黑色背景 (在锁内执行)
+  auto pixel_format = SDL_GetPixelFormatDetails(screen->format);
 
   auto black_color = SDL_MapRGBA(SDL_GetPixelFormatDetails(screen->format),
                                  nullptr, 0, 0, 0, 255);
   SDL_FillSurfaceRect(screen, nullptr, black_color);
 
-  Intersection closet_intersection;
-
+  // 进度跟踪变量
   const int total_pixels = WINDOW_WIDTH * WINDOW_HEIGHT;
+  // total_pixels 可以在 OpenMP reduction 中使用，但 update_interval
+  // 最好在外部计算 进度更新可以简化，只在主线程中打印
+
+  // ⚠️ pixels_drawn 必须在 OpenMP 区域外定义，并在循环中累加
   int pixels_drawn = 0;
-  const int update_interval = total_pixels / 100;
 
-  for (int y = 0; y < WINDOW_HEIGHT; ++y) {
-    for (int x = 0; x < WINDOW_WIDTH; ++x) {
-      vec3 dir(x - WINDOW_WIDTH / 2, y - WINDOW_HEIGHT / 2, FOCAL_LENGTH);
-      if (!ClosestIntersection(CAMERA_POS, dir, triangles, spheres,
-                               closet_intersection)) {
-        continue;
-      }
-      if (!closet_intersection.IsSphere() &&
-          !closet_intersection.IsTriangle()) {
-        int t = 1;
-      }
+#pragma omp parallel num_threads(6)
+  {
+    // 2. 线程私有变量
+    // Intersection 必须是每个线程私有的，以避免数据竞争
+    Intersection closet_intersection;
 
-      vec3 color;
+    // OpenMP for 循环：并行处理像素，并使用 reduction 安全累加 pixels_drawn
+#pragma omp for reduction(+ : pixels_drawn) schedule(dynamic)
+    for (int y = 0; y < WINDOW_HEIGHT; ++y) {
+      for (int x = 0; x < WINDOW_WIDTH; ++x) {
+        // 3. 核心光线追踪和光照计算
+        vec3 dir(x - WINDOW_WIDTH / 2, y - WINDOW_HEIGHT / 2, FOCAL_LENGTH);
 
-      if (closet_intersection.IsSphere()) {
-        color = GetRadianceSphere(closet_intersection, photon_map, photons,
-                                  triangles, spheres);
-      } else {
-        color = GetRadianceTriangle(closet_intersection, photon_map, photons,
+        // ⚠️ closet_intersection 现在是局部变量，线程安全
+        if (!ClosestIntersection(CAMERA_POS, dir, triangles, spheres,
+                                 closet_intersection)) {
+          // 如果没有交点，跳过当前像素
+          continue;
+        }
+
+        // ⚠️ 原始代码中的 if 语句逻辑看起来是调试代码，可以移除或保持
+        // if (!closet_intersection.IsSphere() &&
+        // !closet_intersection.IsTriangle()) { int t = 1; }
+
+        vec3 color;
+
+        if (closet_intersection.IsSphere()) {
+          color = GetRadianceSphere(closet_intersection, photon_map, photons,
                                     triangles, spheres);
-      }
-      PutPixel(screen, x, y, color);
+        } else {  // 假设 IsTriangle() 为真，如果不是，这里会出错
+          color = GetRadianceTriangle(closet_intersection, photon_map, photons,
+                                      triangles, spheres);
+        }
 
-      pixels_drawn++;
-      if (pixels_drawn % update_interval == 0 && pixels_drawn > 0) {
-        double percentage = (double)pixels_drawn / total_pixels * 100.f;
-        printf("\rProgress: %d%%", (int)percentage);
+        // PutPixel (SDL_Surface 已锁定，写入是安全的)
+        PutPixel(screen, x, y, color);
+
+        // 4. 进度累加
+        // reduction(+:pixels_drawn)
+        // 会在循环结束后安全地将线程内的累加值加到主变量
+        pixels_drawn++;
       }
     }
-  }
-  printf("\n");
 
+    // 5. 进度报告
+    // 只有主线程进行进度报告，避免竞争
+#pragma omp master
+    {
+      // 简化进度打印，只在循环结束后打印一次最终状态
+      printf("\rProgress: 100%%\n");
+    }
+  }  // 结束 OpenMP 并行区域
+
+  // 6. Surface 解锁与更新 (在并行区域外，已是线程安全)
   if (SDL_MUSTLOCK(screen)) {
     SDL_UnlockSurface(screen);
   }
   SDL_UpdateWindowSurface(window);
 }
+
 vec3 GetRadianceSphere(const Intersection &i, const KdTree &photon_map,
                        const std::vector<Photon> &photons,
                        const std::vector<Triangle> &triangles,

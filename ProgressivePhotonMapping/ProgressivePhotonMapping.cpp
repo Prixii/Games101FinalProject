@@ -1,4 +1,5 @@
 #include "ProgressivePhotonMapping.h"
+#include "HitPoint.h"
 
 #include <cmath>
 #include <utility>
@@ -25,10 +26,6 @@ std::vector<Photon> *EmitPhotons(int num_photons, Model &model) {
     Photon p(photon_dir, LIGHT_POS, LIGHT_POWER / (float)num_photons, 0);
     TracePhoton(p, model, *photons);
   }
-
-  PrintInfo("invisible_time:%d\n", invisible_time);
-  PrintInfo("tracep2_time: %d\n", tracep2_time);
-  PrintInfo("closet_not_found:%d\n", closet_not_found_time);
 
   return photons;
 }
@@ -166,7 +163,7 @@ vec3 GetRadianceTriangle(const Intersection &i, const KdTree &photon_map,
   float dp;
   float r_sqr = 0.f;
 
-  std::vector<NeighborPhoton> neighbors =
+  std::vector<NeighborHitPoint> neighbors =
       photon_map.SearchKNearest(i.position_, K_NEAREST, r_sqr);
   for (size_t p = 0; p < neighbors.size(); p++) {
     dp = neighbors[p].dist_;
@@ -187,15 +184,15 @@ vec3 GetRadianceTriangle(const Intersection &i, const KdTree &photon_map,
 }
 void SinglePassRayTracing(Model &model, glm::vec3 ray_origin, glm::vec3 ray_dir,
                           glm::vec3 color, int bounce, double dist,
-                          glm::vec2 pos, std::vector<glm::vec3> pixels,
-                          std::vector<HitPoint> hit_points) {
+                          glm::vec2 pos, std::vector<glm::vec3> &pixels,
+                          std::vector<HitPoint> &hit_points) {
 
   if (bounce > BOUNCE_LIMIT) {
     return;
   }
 
   Intersection i, j;
-  if (!ClosestIntersection(CAMERA_POS, ray_dir, model.triangles_,
+  if (!ClosestIntersection(ray_origin, ray_dir, model.triangles_,
                            model.spheres_, i)) {
     pixels[pos.x * WINDOW_WIDTH + pos.y] += PURE_BLACK;
     return;
@@ -203,14 +200,22 @@ void SinglePassRayTracing(Model &model, glm::vec3 ray_origin, glm::vec3 ray_dir,
 
   if (i.IsSphere()) {
     auto &sphere = model.spheres_[i.sphere_index_];
-    Refract(sphere, normalize(ray_dir), model.triangles_, model.spheres_, i, j);
+    // TODO
+    if (!Refract(sphere, normalize(ray_dir), model.triangles_, model.spheres_,
+                 i, j)) {
+      return;
+    }
+
+    if (!j.IsTriangle() && !j.IsSphere()) {
+      int p = 1;
+    }
     std::swap(i, j);
   }
   auto &triangle = model.triangles_[i.triangle_index_];
   auto new_color = color * triangle.color_ / (float)std::sqrt(bounce + 1);
 
   hit_points.push_back(
-      HitPoint{i.position_, triangle.normal_, new_color, pos, 1.f});
+      HitPoint{i.position_, triangle.normal_, new_color, ray_dir, pos, 1.f});
 
   auto new_ray_dir = GetRandomDirection(triangle.normal_);
   SinglePassRayTracing(model, i.position_, new_ray_dir, new_color, bounce + 1,
@@ -223,7 +228,7 @@ std::vector<HitPoint> RayTracing(SDL_Surface *screen, Model &model) {
   std::vector<glm::vec3> pixels(WINDOW_WIDTH * WINDOW_HEIGHT);
   std::iota(pixels.begin(), pixels.end(), PURE_BLACK);
 
-  auto hit_points = new std::vector<HitPoint>(WINDOW_WIDTH * WINDOW_HEIGHT);
+  auto hit_points = new std::vector<HitPoint>();
 
   for (int w = 0; w < WINDOW_WIDTH; w++) {
     for (int h = 0; h < WINDOW_HEIGHT; h++) {
@@ -237,6 +242,27 @@ std::vector<HitPoint> RayTracing(SDL_Surface *screen, Model &model) {
                            target_pixel, pixels, *hit_points);
     }
   }
+
+  return *hit_points;
+}
+
+std::vector<HitPoint> TestRayTracing(SDL_Surface *screen, Model &model) {
+  std::vector<int> samples_count(WINDOW_WIDTH * WINDOW_HEIGHT);
+  std::iota(samples_count.begin(), samples_count.end(), 0);
+
+  std::vector<glm::vec3> pixels(WINDOW_WIDTH * WINDOW_HEIGHT);
+  std::iota(pixels.begin(), pixels.end(), PURE_BLACK);
+
+  auto hit_points = new std::vector<HitPoint>();
+  auto w = 325, h = 436;
+
+  glm::vec2 target_pixel(w + GetRandomFloat(0.f, 0.5f),
+                         h + GetRandomFloat(0.f, 0.5f));
+  glm::vec3 ray_origin = CAMERA_POS;
+  glm::vec3 ray_dir(target_pixel.x - (float)WINDOW_WIDTH / 2,
+                    target_pixel.y - (float)WINDOW_HEIGHT / 2, FOCAL_LENGTH);
+  SinglePassRayTracing(model, ray_origin, ray_dir, WHITE, 0, 0, target_pixel,
+                       pixels, *hit_points);
 
   return *hit_points;
 }
