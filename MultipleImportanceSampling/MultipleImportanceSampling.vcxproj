@@ -135,13 +135,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\general\SDLHelper.cpp" />
     <ClCompile Include="..\general\Tools.cpp" />
     <ClCompile Include="BasicMesh.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MISConfig.h" />
+    <ClCompile Include="RayTracer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\general\SDLHelper.h" />
     <ClInclude Include="..\general\Tools.h" />
     <ClInclude Include="BasicMesh.h" />
+    <ClInclude Include="HitPoint.h" />
+    <ClInclude Include="Ray.h" />
+    <ClInclude Include="RayTracer.h" />
     <ClInclude Include="Structs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

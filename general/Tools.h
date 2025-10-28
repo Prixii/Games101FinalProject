@@ -1,5 +1,6 @@
 #pragma once
 
+#include "glm/ext/vector_float3.hpp"
 #include <algorithm>
 #include <cmath>
 #include <glm/glm.hpp>
@@ -22,3 +23,6 @@ glm::vec3 GetRandomDirection(const glm::vec3 &normal);
 float GetSqrDist(const glm::vec3 a, const glm::vec3 b);
 
 int GetIndex(float x, float y, int width, int height);
+
+bool RussianRoulette(float probability);
+bool IsVisible(glm::vec3 &v1, glm::vec3 &v2);

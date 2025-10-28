@@ -24,6 +24,15 @@
     <ClCompile Include="BasicMesh.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="MISConfig.h">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RayTracer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\general\SDLHelper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\general\Tools.h">
@@ -33,6 +42,18 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="BasicMesh.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RayTracer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\general\SDLHelper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Ray.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HitPoint.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -26,3 +26,11 @@ struct BasicMeshEntry {
   unsigned int base_index = -1;
   unsigned int material_idx_ = -1;
 };
+
+struct Intersection {
+  glm::vec3 position_;
+  glm::vec3 normal_;
+  float distance_;
+  int mesh_index_;
+  float t_;
+};

@@ -1,10 +1,13 @@
+#include <SDL3/SDL.h>
+#include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-#include <assimp/Importer.hpp>
-
+#include "../general/SDLHelper.h"
 #include "../general/Tools.h"
+#include "./MISConfig.h"
 #include "BasicMesh.h"
+#include "RayTracer.h"
 
 //
 // 课程中提到我们可以对光源采样，也可以对 BSDF采样，那么两种方法怎样
@@ -18,11 +21,8 @@ int main() {
   PrintInfo("Project: MIS\n");
 
   Assimp::Importer importer;
-  const auto obj_file_name = "../assets/cornell_box/cornell_box.obj";
-  const auto assimp_flag = aiProcess_CalcTangentSpace | aiProcess_Triangulate |
-                           aiProcess_JoinIdenticalVertices |
-                           aiProcess_SortByPType;
-  const aiScene *scene = importer.ReadFile(obj_file_name, assimp_flag);
+
+  const aiScene *scene = importer.ReadFile(OBJ_FILE_NAME, ASSIMP_FLAG);
   if (scene == nullptr) {
     PrintErr("Failed to load scene");
     return -1;
@@ -30,6 +30,12 @@ int main() {
 
   BasicMesh basic_mesh;
   basic_mesh.InitFromScene(*scene);
+  basic_mesh.NormalizeVertices();
+
+  SDL_Window *window = nullptr;
+  auto screen = InitializeSDL(WINDOW_WIDTH, WINDOW_HEIGHT, window);
+
+  RayTracer ray_tracer{};
 
   return 0;
 }
