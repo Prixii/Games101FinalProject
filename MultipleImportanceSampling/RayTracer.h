@@ -1,28 +1,28 @@
 #pragma once
-#include "BasicMesh.h"
-#include "MISConfig.h"
-#include "Ray.h"
-#include "Structs.h"
-#include "glm/ext/vector_float3.hpp"
-#include "glm/geometric.hpp"
 #include <cmath>
 #include <cstddef>
 #include <glm/glm.hpp>
 #include <utility>
 #include <vector>
 
-class RayTracer {
+#include "BasicMesh.h"
+#include "MISConfig.h"
+#include "Ray.h"
+#include "Structs.h"
+#include "glm/ext/vector_float3.hpp"
+#include "glm/geometric.hpp"
 
-private:
+class RayTracer {
+ private:
   std::vector<glm::vec3> pixels;
 
-public:
+ public:
   RayTracer() = default;
   ~RayTracer() = default;
 
   void Init();
 
-  void RayTracing(BasicMesh &mesh);
+  std::vector<glm::vec3> RayTracing(BasicMesh &mesh);
 
   Ray CreateRay(int x, int y, glm::vec3 &right, glm::vec3 &up);
 

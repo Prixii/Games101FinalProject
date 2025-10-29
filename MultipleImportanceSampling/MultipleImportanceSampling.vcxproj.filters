@@ -33,6 +33,9 @@
     <ClCompile Include="..\general\SDLHelper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="BRDF.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\general\Tools.h">
@@ -54,6 +57,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="HitPoint.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BRDF.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

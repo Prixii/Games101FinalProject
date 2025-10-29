@@ -111,6 +111,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -138,6 +139,7 @@
     <ClCompile Include="..\general\SDLHelper.cpp" />
     <ClCompile Include="..\general\Tools.cpp" />
     <ClCompile Include="BasicMesh.cpp" />
+    <ClCompile Include="BRDF.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MISConfig.h" />
     <ClCompile Include="RayTracer.cpp" />
@@ -146,6 +148,7 @@
     <ClInclude Include="..\general\SDLHelper.h" />
     <ClInclude Include="..\general\Tools.h" />
     <ClInclude Include="BasicMesh.h" />
+    <ClInclude Include="BRDF.h" />
     <ClInclude Include="HitPoint.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RayTracer.h" />

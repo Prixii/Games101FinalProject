@@ -3,7 +3,9 @@
 #include <assimp/postprocess.h>
 #include <glm/glm.hpp>
 
-constexpr auto OBJ_FILE_NAME = "../assets/cornell_box/cornell_box.obj";
+ //constexpr auto OBJ_FILE_NAME = "../assets/cornell_box/cornell_box.obj";
+constexpr auto OBJ_FILE_NAME = "../assets/cube_tesslated2.obj";
+
 constexpr auto ASSIMP_FLAG =
     aiProcess_CalcTangentSpace | aiProcess_Triangulate |
     aiProcess_JoinIdenticalVertices | aiProcess_SortByPType;
@@ -20,3 +22,7 @@ constexpr auto MAX_BOUNCES = 5;
 constexpr auto EPSILON = 1e-6f;
 
 constexpr auto BACKGROUND_COLOR = glm::vec3(0.f);
+
+// BRDF
+constexpr int FRESNEL_POWER = 5;
+constexpr glm::vec3 FRESNEL_F = glm::vec3(0.04f);

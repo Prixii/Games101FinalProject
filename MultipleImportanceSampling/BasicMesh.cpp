@@ -2,6 +2,7 @@
 bool BasicMesh::InitFromScene(const aiScene &scene) {
   meshes_.resize(scene.mNumMeshes);
   materials_.resize(scene.mNumMaterials);
+  brdfs_.resize(scene.mNumMaterials);
 
   auto [num_vertices, num_indices] = CountVerticesAndIndices(scene);
   vertices_.reserve(num_vertices);
@@ -85,12 +86,50 @@ void BasicMesh::InitMaterials(const aiScene &scene) {
                 specular_color.b);
     }
 
+    aiColor3D emissive_color(0.f, 0.f, 0.f);
+    if (material->Get(AI_MATKEY_COLOR_EMISSIVE, emissive_color) == AI_SUCCESS) {
+      PrintInfo("EmissiveColor: %f %f %f\n", emissive_color.r, emissive_color.g,
+                emissive_color.b);
+    }
+
     materials_[i].ambient_color_ = {ambient_color.r, ambient_color.g,
                                     ambient_color.b, 1.f};
     materials_[i].diffuse_color_ = {diffuse_color.r, diffuse_color.g,
                                     diffuse_color.b, 1.f};
     materials_[i].specular_color_ = {specular_color.r, specular_color.g,
                                      specular_color.b, 1.f};
+    materials_[i].emissive_color_ = {emissive_color.r, emissive_color.g,
+                                     emissive_color.b, 1.f};
     materials_[i].name_ = material->GetName().data;
+
+    brdfs_[i] = BRDF({diffuse_color.r, diffuse_color.g, diffuse_color.b},
+                     {specular_color.r, specular_color.g, specular_color.b});
+  }
+}
+void BasicMesh::NormalizeVertices() {
+  float max = 0.0f;
+  for (auto &vertex : vertices_) {
+    auto pos = vertex.position_;
+    auto max_pos =
+        std::max(std::abs(pos.x), std::max(std::abs(pos.y), std::abs(pos.z)));
+    max = std::max(max, max_pos);
+  }
+  for (auto &vertex : vertices_) {
+    vertex.position_ /= max;
+  }
+}
+
+void BasicMesh::Rotate(float deg) {
+  float radians = glm::radians(deg);
+
+  glm::mat4 rotation_matrix =
+      glm::rotate(glm::mat4(1.0f), radians, glm::vec3(0.0f, 1.0f, 0.0f));
+
+  for (auto &vert : vertices_) {
+    glm::vec4 rotated_pos = rotation_matrix * glm::vec4(vert.position_, 1.0f);
+    vert.position_ = glm::vec3(rotated_pos);
+
+    glm::vec4 rotated_normal = rotation_matrix * glm::vec4(vert.normal_, 0.0f);
+    vert.normal_ = glm::normalize(glm::vec3(rotated_normal));
   }
 }

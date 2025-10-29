@@ -28,6 +28,7 @@ int main() {
     return -1;
   }
 
+  PrintInfo("Loading Mesh\n");
   BasicMesh basic_mesh;
   basic_mesh.InitFromScene(*scene);
   basic_mesh.NormalizeVertices();
@@ -35,7 +36,23 @@ int main() {
   SDL_Window *window = nullptr;
   auto screen = InitializeSDL(WINDOW_WIDTH, WINDOW_HEIGHT, window);
 
+  PrintInfo("Initializing Ray Tracer\n");
   RayTracer ray_tracer{};
 
-  return 0;
+  PrintInfo("Ray Tracing\n");
+  auto pixels = ray_tracer.RayTracing(basic_mesh);
+
+  PrintInfo("Displaying Image\n");
+  PutPixelPatch(screen, WINDOW_WIDTH, WINDOW_HEIGHT, pixels, window);
+
+  SDL_Event event;
+  while (true) {
+    while (SDL_PollEvent(&event)) {
+      if (event.key.key == SDLK_ESCAPE) {
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 0;
+      }
+    }
+  }
 }

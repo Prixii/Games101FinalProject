@@ -1,8 +1,10 @@
 #include "SDLHelper.h"
 
 #include "../general/Tools.h"
+#include "SDL3/SDL_video.h"
+#include <vector>
 
-SDL_Surface* InitializeSDL(int width, int height, SDL_Window*& out_window) {
+SDL_Surface *InitializeSDL(int width, int height, SDL_Window *&out_window) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     PrintErr("Could not initialize SDL: %s\n", SDL_GetError());
     exit(1);
@@ -29,7 +31,7 @@ SDL_Surface* InitializeSDL(int width, int height, SDL_Window*& out_window) {
   return surface;
 }
 
-void PutPixel(SDL_Surface* surface, int x, int y, const vec3& color) {
+void PutPixel(SDL_Surface *surface, int x, int y, const vec3 &color) {
   if (!surface) {
     PrintErr("Surface is null\n");
     return;
@@ -47,4 +49,29 @@ void PutPixel(SDL_Surface* surface, int x, int y, const vec3& color) {
   Uint8 a = 255u;
 
   SDL_WriteSurfacePixel(surface, x, y, r, g, b, a);
+}
+
+void PutPixelPatch(SDL_Surface *surface, int width, int height,
+                   const std::vector<glm::vec3> &pixels, SDL_Window *window) {
+  if (SDL_MUSTLOCK(surface)) {
+    SDL_LockSurface(surface);
+  }
+
+  // 填充黑色背景 (在锁内执行)
+  auto pixel_format = SDL_GetPixelFormatDetails(surface->format);
+
+  auto black_color = SDL_MapRGBA(SDL_GetPixelFormatDetails(surface->format),
+                                 nullptr, 0, 0, 0, 255);
+  SDL_FillSurfaceRect(surface, nullptr, black_color);
+
+  for (int x = 0; x < width; ++x) {
+    for (int y = 0; y < height; ++y) {
+      PutPixel(surface, x, y, pixels[GetIndex(x, y, width, height)]);
+    }
+  }
+
+  if (SDL_MUSTLOCK(surface)) {
+    SDL_UnlockSurface(surface);
+  }
+  SDL_UpdateWindowSurface(window);
 }

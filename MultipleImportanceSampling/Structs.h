@@ -16,6 +16,7 @@ struct Material {
   glm::vec4 diffuse_color_;
   glm::vec4 ambient_color_;
   glm::vec4 specular_color_;
+  glm::vec4 emissive_color_;
 
   Material() = default;
 };

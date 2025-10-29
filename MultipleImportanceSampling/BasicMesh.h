@@ -1,5 +1,6 @@
 #pragma once
 #include "../general/Tools.h"
+#include "BRDF.h"
 #include "Structs.h"
 
 #include "assimp/Importer.hpp"
@@ -8,6 +9,7 @@
 #include "assimp/scene.h"
 #include "glm/geometric.hpp"
 #include <cstdint>
+#include <glm/gtc/matrix_transform.hpp>
 #include <utility>
 #include <vector>
 
@@ -17,6 +19,7 @@ public:
   std::vector<uint32_t> indices_;
   std::vector<Material> materials_;
   std::vector<BasicMeshEntry> meshes_;
+  std::vector<BRDF> brdfs_;
 
   BasicMesh() = default;
 
@@ -30,16 +33,7 @@ public:
 
   void InitMaterials(const aiScene &scene);
 
-  void NormalizeVertices() {
-    float max = 0.0f;
-    for (auto &vertex : vertices_) {
-      auto pos = vertex.position_;
-      auto max_pos =
-          std::max(std::abs(pos.x), std::max(std::abs(pos.y), std::abs(pos.z)));
-      max = std::max(max, max_pos);
-    }
-    for (auto &vertex : vertices_) {
-      vertex.position_ /= max;
-    }
-  }
+  void NormalizeVertices();
+
+  void Rotate(float deg);
 };
