@@ -13,10 +13,13 @@
 #include "glm/geometric.hpp"
 
 class RayTracer {
- private:
+private:
   std::vector<glm::vec3> pixels;
 
- public:
+public:
+  float max_z = -2;
+  float min_z = 2;
+
   RayTracer() = default;
   ~RayTracer() = default;
 
@@ -24,9 +27,13 @@ class RayTracer {
 
   std::vector<glm::vec3> RayTracing(BasicMesh &mesh);
 
+private:
   Ray CreateRay(int x, int y, glm::vec3 &right, glm::vec3 &up);
 
   glm::vec3 TracePath(Ray &ray, BasicMesh &mesh);
 
   std::pair<bool, Intersection> ClosestIntersection(Ray &ray, BasicMesh &mesh);
+
+  glm::vec3 CalcDirectLight(const Intersection &intersection,
+                            const BasicMesh &mesh);
 };

@@ -42,9 +42,8 @@ bool ClosestIntersection(const vec3 start, const vec3 dir,
 
   return intersects;
 }
-vec3 DirectLight(const Intersection &i,
-                      const std::vector<Triangle> &triangles,
-                      const std::vector<Sphere> &spheres) {
+vec3 DirectLight(const Intersection &i, const std::vector<Triangle> &triangles,
+                 const std::vector<Sphere> &spheres) {
   float r = distance(LIGHT_POS, i.position_);
   vec3 r_hat = normalize(LIGHT_POS - i.position_);
   vec3 n_hat = triangles[i.triangle_index_].normal_;
@@ -57,9 +56,7 @@ vec3 DirectLight(const Intersection &i,
       return vec3(0, 0, 0);
     }
   }
-  return (LIGHT_COLOR * std::max(dot(r_hat, n_hat), 0.f)) /
-         (4.f * PI * r * r);
+  return (LIGHT_COLOR * std::max(dot(r_hat, n_hat), 0.f)) / (4.f * PI * r * r);
 }
-bool IsVisible(vec3 v1, vec3 v2) { 
-  return dot(v1, v2) <= 0.f; 
-}
+
+bool IsVisible(vec3 v1, vec3 v2) { return dot(v1, v2) <= 0.f; }

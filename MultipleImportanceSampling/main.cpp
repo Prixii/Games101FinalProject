@@ -22,7 +22,9 @@ int main() {
 
   Assimp::Importer importer;
 
-  const aiScene *scene = importer.ReadFile(OBJ_FILE_NAME, ASSIMP_FLAG);
+  auto obj = "../assets/cube.obj";
+
+  const aiScene *scene = importer.ReadFile(obj, ASSIMP_FLAG);
   if (scene == nullptr) {
     PrintErr("Failed to load scene");
     return -1;
@@ -31,6 +33,7 @@ int main() {
   PrintInfo("Loading Mesh\n");
   BasicMesh basic_mesh;
   basic_mesh.InitFromScene(*scene);
+  basic_mesh.Rotate(65.f);
   basic_mesh.NormalizeVertices();
 
   SDL_Window *window = nullptr;
@@ -41,6 +44,8 @@ int main() {
 
   PrintInfo("Ray Tracing\n");
   auto pixels = ray_tracer.RayTracing(basic_mesh);
+
+  PrintInfo("max_z: %f, min_z: %f\n", ray_tracer.max_z, ray_tracer.min_z);
 
   PrintInfo("Displaying Image\n");
   PutPixelPatch(screen, WINDOW_WIDTH, WINDOW_HEIGHT, pixels, window);

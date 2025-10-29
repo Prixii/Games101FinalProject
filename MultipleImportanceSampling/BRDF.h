@@ -15,6 +15,11 @@ struct BRDFSample {
   glm::vec3 brdf_color_;
 };
 
+enum SampleMethod {
+  COMMON,
+  IMPORTANCE_SAMPLING,
+};
+
 class BRDF {
 
   glm::vec3 f0_ = FRESNEL_F; // ks
@@ -33,9 +38,12 @@ public:
     f0_ = glm::mix(FRESNEL_F, albedo_, metallic_);
   }
 
-  BRDFSample SampleBRDF(glm::vec3 &n_, glm::vec3 &v_);
+  BRDFSample SampleBRDF(glm::vec3 &n_, glm::vec3 &v_, SampleMethod method);
 
 private:
+  BRDFSample SampleBRDFCommon(glm::vec3 &n_, glm::vec3 &v_);
+  BRDFSample SampleBRDFImportanceSampling(glm::vec3 &n_, glm::vec3 &v_);
+
   glm::vec3 EvaluateBRDF(glm::vec3 n, glm::vec3 v, glm::vec3 l);
 
   glm::vec3 FresnelSchlick(float cos_theta, glm::vec3 f_0 = FRESNEL_F);

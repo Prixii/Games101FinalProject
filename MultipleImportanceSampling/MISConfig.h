@@ -3,9 +3,6 @@
 #include <assimp/postprocess.h>
 #include <glm/glm.hpp>
 
- //constexpr auto OBJ_FILE_NAME = "../assets/cornell_box/cornell_box.obj";
-constexpr auto OBJ_FILE_NAME = "../assets/cube_tesslated2.obj";
-
 constexpr auto ASSIMP_FLAG =
     aiProcess_CalcTangentSpace | aiProcess_Triangulate |
     aiProcess_JoinIdenticalVertices | aiProcess_SortByPType;

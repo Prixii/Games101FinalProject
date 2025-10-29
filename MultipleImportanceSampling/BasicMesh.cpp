@@ -103,7 +103,7 @@ void BasicMesh::InitMaterials(const aiScene &scene) {
     materials_[i].name_ = material->GetName().data;
 
     brdfs_[i] = BRDF({diffuse_color.r, diffuse_color.g, diffuse_color.b},
-                     {specular_color.r, specular_color.g, specular_color.b});
+                     {specular_color.r, specular_color.g, specular_color.b}, 1.f);
   }
 }
 void BasicMesh::NormalizeVertices() {
