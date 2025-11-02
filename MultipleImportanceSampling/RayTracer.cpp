@@ -21,7 +21,7 @@ Ray RayTracer::CreateRay(int x, int y, glm::vec3 &right, glm::vec3 &up) {
 
   glm::vec3 target =
       VIEW_DIR + alpha * half_width * right + beta * half_height * up;
-  ray.direction_ = -glm::normalize(target);
+  ray.direction_ = glm::normalize(target);
 
   return ray;
 }
@@ -40,8 +40,8 @@ std::vector<glm::vec3> RayTracer::RayTracing(BasicMesh &mesh) {
       double percentage = x / (double)WINDOW_WIDTH * 100.f;
       printf("\rProgress: %.2f%%", percentage);
     }
-#pragma omp parallel num_threads(6)
-#pragma omp for
+//#pragma omp parallel num_threads(6)
+//#pragma omp for
     for (int y = 0; y < WINDOW_HEIGHT; y++) {
       Ray ray = CreateRay(x, y, right, up);
 
@@ -58,24 +58,25 @@ std::vector<glm::vec3> RayTracer::RayTracing(BasicMesh &mesh) {
 
 glm::vec3 RayTracer::TracePath(Ray &ray, BasicMesh &mesh) {
   glm::vec3 path_through_weight = glm::vec3(1.f);
-  glm::vec3 color = glm::vec3(0.f);
+  glm::vec3 color = glm::vec3(0.f, 0.f, 0.f);
 
   glm::vec3 dir_light_color = glm::vec3(0.f);
   bool calc_dir_light = false;
-
   Ray current_ray = ray;
   for (int bounce = 0; bounce < MAX_BOUNCES; bounce++) {
     auto [found, intersection] = ClosestIntersection(current_ray, mesh);
 
-    if (!found) {
-      color += path_through_weight * BACKGROUND_COLOR;
+    if (!found && bounce == 0) {
+      color = glm::vec3(0.1f,0.f,0.1f);
       break;
-    } 
+    }
 
+ 
     if (!calc_dir_light) {
       dir_light_color = CalcDirectLight(intersection, mesh);
     }
 
+    // may have bug here
     auto &triangle = mesh.meshes_[intersection.mesh_index_];
     auto &brdf = mesh.brdfs_[triangle.material_idx_];
     auto &material = mesh.materials_[triangle.material_idx_];
@@ -84,16 +85,19 @@ glm::vec3 RayTracer::TracePath(Ray &ray, BasicMesh &mesh) {
     auto brdf_sample = brdf.SampleBRDF(intersection.normal_, v,
                                        SampleMethod::IMPORTANCE_SAMPLING);
 
-    if (!IsVisible(brdf_sample.new_dir_, intersection.normal_)) {
+    if (!IsVisible(brdf_sample.new_dir_, intersection.normal_) && bounce == 0) {
       break;
     }
 
     auto cos_theta = glm::dot(brdf_sample.new_dir_, intersection.normal_);
     path_through_weight *=
         brdf_sample.brdf_color_ * (cos_theta / brdf_sample.pdf_);
+    
     color += path_through_weight * glm::vec3(material.diffuse_color_.x,
                                              material.diffuse_color_.y,
                                              material.diffuse_color_.z);
+
+
 
     current_ray.direction_ = brdf_sample.new_dir_;
     current_ray.origin_ =
@@ -101,10 +105,10 @@ glm::vec3 RayTracer::TracePath(Ray &ray, BasicMesh &mesh) {
     if (!RussianRoulette(0.5f)) {
       break;
     }
+
   }
-  if (dir_light_color != glm::vec3(0.f)) {
-    int i = 1;
-  }
+
+  // todo add direct light
   return color;
 }
 
@@ -116,7 +120,7 @@ std::pair<bool, Intersection> RayTracer::ClosestIntersection(Ray &ray,
   closest.t_ = std::numeric_limits<float>::max();
 
   for (int mesh_idx = 0; mesh_idx < mesh.meshes_.size(); ++mesh_idx) {
-    auto sub_mesh_entry = mesh.meshes_[mesh_idx];
+    auto &sub_mesh_entry = mesh.meshes_[mesh_idx];
     for (int i = sub_mesh_entry.base_index; i < sub_mesh_entry.indices_count_;
          i += 3) {
       Intersection intersection{};
@@ -189,6 +193,6 @@ glm::vec3 RayTracer::CalcDirectLight(const Intersection &intersection,
   glm::vec3 light_intensity = light_color / (light_distance * light_distance);
   glm::vec3 light_contribution =
       light_intensity *
-      glm::max(glm::dot(intersection.normal_, light_direction), 0.0f);
+      glm::max(glm::dot(-intersection.normal_, light_direction), 0.0f);
   return light_contribution;
 }

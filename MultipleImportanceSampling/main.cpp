@@ -20,6 +20,9 @@
 int main() {
   PrintInfo("Project: MIS\n");
 
+
+  auto s = glm::cross(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
+
   Assimp::Importer importer;
 
   auto obj = "../assets/cube.obj";
@@ -36,14 +39,16 @@ int main() {
   basic_mesh.Rotate(65.f);
   basic_mesh.NormalizeVertices();
 
-  SDL_Window *window = nullptr;
-  auto screen = InitializeSDL(WINDOW_WIDTH, WINDOW_HEIGHT, window);
 
   PrintInfo("Initializing Ray Tracer\n");
   RayTracer ray_tracer{};
 
   PrintInfo("Ray Tracing\n");
   auto pixels = ray_tracer.RayTracing(basic_mesh);
+
+  SDL_Window *window = nullptr;
+  auto screen = InitializeSDL(WINDOW_WIDTH, WINDOW_HEIGHT, window);
+
 
   PrintInfo("max_z: %f, min_z: %f\n", ray_tracer.max_z, ray_tracer.min_z);
 

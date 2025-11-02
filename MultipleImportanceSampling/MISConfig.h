@@ -12,7 +12,7 @@ constexpr auto WINDOW_WIDTH = 800;
 
 constexpr auto CAMERA_POS = glm::vec3(0.0f, 0.0f, -3.0f);
 constexpr auto CAMERA_UP = glm::vec3(0.f, 1.f, 0.f);
-constexpr auto VIEW_DIR = glm::vec3(0.f, 0.f, -1.f);
+constexpr auto VIEW_DIR = glm::vec3(0.f, 0.f, 1.f);
 constexpr float FOV_RAD = glm::radians(90.f);
 constexpr auto MAX_BOUNCES = 5;
 
