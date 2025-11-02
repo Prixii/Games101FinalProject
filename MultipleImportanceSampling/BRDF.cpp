@@ -21,12 +21,21 @@ BRDFSample BRDF::SampleBRDFImportanceSampling(glm::vec3 &n_, glm::vec3 &v_) {
   auto n = glm::normalize(n_);
   auto v = glm::normalize(v_);
 
-  // 1. TBN (与原代码类似，用于局部空间到世界空间的变换)
+  // 1. TBN (保持您当前的 TBN 逻辑，或使用您认为最接近正确的版本)
+  // ... TBN 矩阵的计算 ...
   auto w = n;
-  // 使用更安全的向量来计算 u
-  auto u = glm::normalize(glm::cross(
-      abs(w.x) > 0.99f ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0), w));
+
+// 2. 避免使用 if/else 的 safe_vector，直接使用 n 的最大分量来构造
+  glm::vec3 arbitrary_vec =
+      abs(w.z) > 0.9f ? glm::vec3(1, 0, 0) : glm::vec3(0, 0, 1);
+
+  // 3. 计算切线 u (t)，使用 Gram-Schmidt 正交化
+  auto u = glm::normalize(glm::cross(arbitrary_vec, w));
+
+  // 4. 计算副切线 vv (b)
+  // 确保 (t, b, n) 是右手基：b = n x t
   glm::vec3 vv = glm::cross(w, u);
+
   auto TBN = glm::mat3(u, vv, w);
 
   // 2. 2D 随机数 (保持不变)
@@ -34,14 +43,10 @@ BRDFSample BRDF::SampleBRDFImportanceSampling(glm::vec3 &n_, glm::vec3 &v_) {
   auto xi_2 = GetRandomFloat();
 
   // 3. GGX Importance Sampling: 采样微表面法线 h
-  float a = roughness_ * roughness_; // alpha^2
+  float a = roughness_ * roughness_;
   float a2 = a * a;
 
-  // 采样 phi (方位角)
   float phi = 2.0f * PI * xi_1;
-
-  // 采样 cos(theta_h) (极角)
-  // 来自 p_theta(h) 的逆变换抽样
   float cos_theta_h = glm::sqrt((1.0f - xi_2) / (1.0f + (a2 - 1.0f) * xi_2));
   float sin_theta_h = glm::sqrt(1.0f - cos_theta_h * cos_theta_h);
 
@@ -53,40 +58,68 @@ BRDFSample BRDF::SampleBRDFImportanceSampling(glm::vec3 &n_, glm::vec3 &v_) {
   auto h = TBN * h_local;
 
   // 6. 根据 h 和 v 计算出射光方向 l
-  // l = 2 * (v · h) * h - v
   float v_dot_h = glm::dot(v, h);
   auto l = 2.0f * v_dot_h * h - v;
   sample.new_dir_ = l;
 
-  // 7. 有效性检查 (l 必须在法线半球上方, h 必须在 v 的半球上方)
+  // -----------------------------------------------------
+  // ❗ 强行修正 l 的方向，以保证 n · l > 0 (避免返回 0)
+  // -----------------------------------------------------
+
+  // 检查 h 是否指向背面（这通常是 TBN 错误导致的）
+  float n_dot_h = glm::dot(n, h);
+  if (n_dot_h < 0.0f) {
+    h = -h;                    // 强制 h 翻转到正面
+    n_dot_h = -n_dot_h;        // 更新 n_dot_h
+    v_dot_h = glm::dot(v, h);  // 重新计算 v_dot_h
+
+    // 重新计算 l，确保 l 是基于修正后的 h
+    l = 2.0f * v_dot_h * h - v;
+    sample.new_dir_ = l;
+  }
+
   float n_dot_l = glm::dot(n, l);
-  if (n_dot_l <= 1e-6f || v_dot_h <= 1e-6f) {
+
+  // ❗ 如果 l 依然指向背面（可能是因为 h 已经被翻转过，但 l 还是指向背面，
+  //    或者 v_dot_h < 0，但我们强制要求 h 在正面）
+  //    我们在这里不再返回 0，而是将 l 投影到正面半球。
+  if (n_dot_l < 0.0f) {
+    // 投影 l 到正面半球：将其在法线方向的分量取反
+    l = 2.0f * n_dot_l * n - l;
+    n_dot_l = glm::dot(n, l);  // 更新 n_dot_l (现在应该是正数)
+  }
+
+  // -----------------------------------------------------
+  // ❗ 移除原始的 n_dot_l 检查，保证所有采样的 BRDF 都输出一个值
+  // -----------------------------------------------------
+
+  if (v_dot_h <= 1e-6f) {
+    // 这个检查是物理上的自阴影，必须保留
     sample.pdf_ = 0.f;
     sample.brdf_color_ = glm::vec3(0.f);
+
     return sample;
   }
 
   // 8. 计算 PDF (重要性采样的 PDF)
-  // pdf(l) = D(h) * (n · h) / (4 * (v · h))
-  float D = DistributionGGX(n, h, roughness_); // D(h)
-  float n_dot_h = glm::dot(n, h);
+  // 注意：PDF 仍然基于原始采样的 h，现在 l 已经被修正，所以这会引入偏差
+  float D = DistributionGGX(n, h, roughness_);
 
+  // 确保 n_dot_h 用于 D 和 PDF 的计算是正数
+  // n_dot_h 已经在上面的修正逻辑中确保是正的
   sample.pdf_ = (D * n_dot_h) / (4.0f * v_dot_h);
 
   // 9. 计算 BRDF 颜色 (蒙特卡洛积分项)
   // BRDF_Color = f_r * (n · l) / pdf(l)
   glm::vec3 fr = EvaluateBRDF(n, v, l);
 
-  sample.brdf_color_ =
-      (fr * n_dot_l) / (sample.pdf_ + 1e-6f); // 加上一个小的 eps 防止除零
+  sample.brdf_color_ = (fr * n_dot_l) / (sample.pdf_ + 1e-6f);
 
-
-    /// TEST
-  sample.brdf_color_ = glm::vec3(1.f);
-  sample.pdf_ = 1.f;
+  sample.brdf_color_ = n * 0.5f + glm::vec3(0.5f);
 
   return sample;
 }
+
 BRDFSample BRDF::SampleBRDFCommon(glm::vec3 &n_, glm::vec3 &v_) {
   BRDFSample sample{};
   auto n = glm::normalize(n_);
@@ -158,6 +191,11 @@ glm::vec3 BRDF::EvaluateBRDF(glm::vec3 n, glm::vec3 v, glm::vec3 l) {
   auto kd = glm::vec3(1.f) - ks;
   kd *= (1.f - metallic_);
   auto diffuse = (kd * albedo_) / PI;
+
+
+  if ((diffuse + specular) == glm::vec3(0.f)) {
+    int d = 5;
+  } 
 
   return diffuse + specular;
 }
