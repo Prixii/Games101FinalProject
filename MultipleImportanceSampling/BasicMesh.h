@@ -36,4 +36,6 @@ public:
   void NormalizeVertices();
 
   void Rotate(float deg);
+  void Scale(float scale);
+  void Translate(glm::vec3 offset);
 };

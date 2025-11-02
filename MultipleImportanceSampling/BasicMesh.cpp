@@ -114,10 +114,21 @@ void BasicMesh::NormalizeVertices() {
         std::max(std::abs(pos.x), std::max(std::abs(pos.y), std::abs(pos.z)));
     max = std::max(max, max_pos);
   }
+  Scale(1/max);
+}
+
+void BasicMesh::Scale(float scale) {
   for (auto &vertex : vertices_) {
-    vertex.position_ /= max;
+    vertex.position_ *= scale;
   }
 }
+
+void BasicMesh::Translate(glm::vec3 offset) {
+  for (auto &vert : vertices_) {
+    vert.position_ += offset;
+  }
+}
+
 
 void BasicMesh::Rotate(float deg) {
   float radians = glm::radians(deg);
