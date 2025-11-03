@@ -20,12 +20,12 @@
 int main() {
   PrintInfo("Project: MIS\n");
 
-
   auto s = glm::cross(glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
 
   Assimp::Importer importer;
 
-  auto obj = "../assets/cube.obj";
+  auto obj = "";
+  obj = "../assets/cornell_box/cornell_box.obj";
 
   const aiScene *scene = importer.ReadFile(obj, ASSIMP_FLAG);
   if (scene == nullptr) {
@@ -36,8 +36,7 @@ int main() {
   PrintInfo("Loading Mesh\n");
   BasicMesh basic_mesh;
   basic_mesh.InitFromScene(*scene);
-  basic_mesh.Rotate(65.f);
-  basic_mesh.NormalizeVertices();
+  basic_mesh.Rotate(90.f);
 
 
   PrintInfo("Initializing Ray Tracer\n");
@@ -49,11 +48,10 @@ int main() {
   SDL_Window *window = nullptr;
   auto screen = InitializeSDL(WINDOW_WIDTH, WINDOW_HEIGHT, window);
 
-
   PrintInfo("max_z: %f, min_z: %f\n", ray_tracer.max_z, ray_tracer.min_z);
 
   PrintInfo("Displaying Image\n");
-  PutPixelPatch(screen, WINDOW_WIDTH, WINDOW_HEIGHT, pixels, window);
+  PutPixelPatch(screen, WINDOW_WIDTH, WINDOW_HEIGHT, pixels, window, true);
 
   SDL_Event event;
   while (true) {

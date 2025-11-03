@@ -12,4 +12,5 @@ SDL_Surface *InitializeSDL(int width, int height, SDL_Window *&out_window);
 void PutPixel(SDL_Surface *surface, int x, int y, const glm::vec3 &color);
 
 void PutPixelPatch(SDL_Surface *surface, int width, int height,
-                   const std::vector<glm::vec3> &pixels, SDL_Window *window);
+                   const std::vector<glm::vec3> &pixels, SDL_Window *window,
+                   bool flip_y = true);

@@ -1,6 +1,7 @@
 #pragma once
 #include "../general/Tools.h"
 #include "MISConfig.h"
+#include "Structs.h"
 #include "glm/exponential.hpp"
 #include "glm/ext/matrix_float3x3.hpp"
 #include "glm/ext/vector_float3.hpp"
@@ -18,6 +19,7 @@ struct BRDFSample {
 enum SampleMethod {
   COMMON,
   IMPORTANCE_SAMPLING,
+  LAMBERT,
 };
 
 class BRDF {
@@ -38,11 +40,13 @@ public:
     f0_ = glm::mix(FRESNEL_F, albedo_, metallic_);
   }
 
-  BRDFSample SampleBRDF(glm::vec3 &n_, glm::vec3 &v_, SampleMethod method);
+  BRDFSample SampleBRDF(glm::vec3 &n, glm::vec3 &wi, glm::vec3 &wo,
+                        SampleMethod method);
 
 private:
   BRDFSample SampleBRDFCommon(glm::vec3 &n_, glm::vec3 &v_);
   BRDFSample SampleBRDFImportanceSampling(glm::vec3 &n_, glm::vec3 &v_);
+  BRDFSample SampleLambertBRDF(glm::vec3 &n_, glm::vec3 &v_);
 
   glm::vec3 EvaluateBRDF(glm::vec3 n, glm::vec3 v, glm::vec3 l);
 

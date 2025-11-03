@@ -5,10 +5,50 @@
 #include "BRDF.h"
 #include "MISConfig.h"
 #include "glm/ext/vector_float3.hpp"
+#include "glm/ext/vector_float4.hpp"
 #include "glm/geometric.hpp"
 
+void RayTracer::Init() { pixels.reserve(WINDOW_HEIGHT * WINDOW_WIDTH); }
+
+std::vector<glm::vec3> RayTracer::RayTracing(BasicMesh &mesh) {
+  std::vector<glm::vec3> pixels(WINDOW_HEIGHT * WINDOW_WIDTH, glm::vec3(0.f));
+
+  glm::vec3 right = glm::normalize(glm::cross(VIEW_DIR, CAMERA_UP));
+  glm::vec3 up = glm::normalize(glm::cross(right, VIEW_DIR));
+
+  const int update_interval = WINDOW_WIDTH / 100;
+  for (int x = 0; x < WINDOW_WIDTH; x++) {
+    if (x % update_interval == 0) {
+      double percentage = x / (double)WINDOW_WIDTH * 100.f;
+      printf("\rProgress: %.2f%%", percentage);
+    }
+    // #pragma omp parallel num_threads(6)
+    // #pragma omp for
+    for (int y = 0; y < WINDOW_HEIGHT; y++) {
+      Ray ray = CreateRay(x, y, right, up);
+
+      glm::vec3 color;
+
+      // color = TracePath(ray, mesh);
+      auto [found, intersection] = ClosestIntersection(ray, mesh);
+      if (!found) {
+        color = BACKGROUND_COLOR;
+      } else {
+        auto &triangle = mesh.meshes_[intersection.mesh_index_];
+        auto &brdf = mesh.brdfs_[triangle.material_idx_];
+        auto &material = mesh.materials_[triangle.material_idx_];
+        color = material.diffuse_color_;
+      }
+
+      pixels[GetIndex(x, y, WINDOW_WIDTH, WINDOW_HEIGHT)] = color;
+    }
+  }
+  printf("\n");
+  return pixels;
+}
+
 Ray RayTracer::CreateRay(int x, int y, glm::vec3 &right, glm::vec3 &up) {
-  Ray ray;
+  Ray ray{};
 
   ray.origin_ = CAMERA_POS;
 
@@ -26,36 +66,6 @@ Ray RayTracer::CreateRay(int x, int y, glm::vec3 &right, glm::vec3 &up) {
   return ray;
 }
 
-void RayTracer::Init() { pixels.reserve(WINDOW_HEIGHT * WINDOW_WIDTH); }
-
-std::vector<glm::vec3> RayTracer::RayTracing(BasicMesh &mesh) {
-  std::vector<glm::vec3> pixels(WINDOW_HEIGHT * WINDOW_WIDTH, glm::vec3(0.f));
-
-  glm::vec3 right = glm::normalize(glm::cross(VIEW_DIR, CAMERA_UP));
-  glm::vec3 up = glm::normalize(glm::cross(right, VIEW_DIR));
-
-  const int update_interval = WINDOW_WIDTH / 100;
-  for (int x = 0; x < WINDOW_WIDTH; x++) {
-    if (x % update_interval == 0) {
-      double percentage = x / (double)WINDOW_WIDTH * 100.f;
-      printf("\rProgress: %.2f%%", percentage);
-    }
-//#pragma omp parallel num_threads(6)
-//#pragma omp for
-    for (int y = 0; y < WINDOW_HEIGHT; y++) {
-      Ray ray = CreateRay(x, y, right, up);
-
-      glm::vec3 color;
-
-      color = TracePath(ray, mesh);
-
-      pixels[GetIndex(x, y, WINDOW_WIDTH, WINDOW_HEIGHT)] = color;
-    }
-  }
-  printf("\n");
-  return pixels;
-}
-
 glm::vec3 RayTracer::TracePath(Ray &ray, BasicMesh &mesh) {
   glm::vec3 path_through_weight = glm::vec3(1.f);
   glm::vec3 color = glm::vec3(0.f, 0.f, 0.f);
@@ -67,22 +77,24 @@ glm::vec3 RayTracer::TracePath(Ray &ray, BasicMesh &mesh) {
     auto [found, intersection] = ClosestIntersection(current_ray, mesh);
 
     if (!found && bounce == 0) {
-      color = glm::vec3(0.1f,0.f,0.1f);
+      color = glm::vec3(0.1f, 0.f, 0.1f);
       break;
     }
 
- 
     if (!calc_dir_light) {
       dir_light_color = CalcDirectLight(intersection, mesh);
     }
 
-    // may have bug here
     auto &triangle = mesh.meshes_[intersection.mesh_index_];
     auto &brdf = mesh.brdfs_[triangle.material_idx_];
     auto &material = mesh.materials_[triangle.material_idx_];
 
-    auto v = intersection.position_ - CAMERA_POS;
-    auto brdf_sample = brdf.SampleBRDF(intersection.normal_, v,
+    // HACK
+    return dir_light_color + glm::vec3(0.5f);
+
+    auto wi = ray.direction_;
+    auto wo = intersection.position_ - CAMERA_POS;
+    auto brdf_sample = brdf.SampleBRDF(intersection.normal_, wi, wo,
                                        SampleMethod::IMPORTANCE_SAMPLING);
 
     if (!IsVisible(brdf_sample.new_dir_, intersection.normal_) && bounce == 0) {
@@ -92,12 +104,10 @@ glm::vec3 RayTracer::TracePath(Ray &ray, BasicMesh &mesh) {
     auto cos_theta = glm::dot(brdf_sample.new_dir_, intersection.normal_);
     path_through_weight *=
         brdf_sample.brdf_color_ * (cos_theta / brdf_sample.pdf_);
-    
+
     color += path_through_weight * glm::vec3(material.diffuse_color_.x,
                                              material.diffuse_color_.y,
                                              material.diffuse_color_.z);
-
-
 
     current_ray.direction_ = brdf_sample.new_dir_;
     current_ray.origin_ =
@@ -105,13 +115,11 @@ glm::vec3 RayTracer::TracePath(Ray &ray, BasicMesh &mesh) {
     if (!RussianRoulette(0.5f)) {
       break;
     }
-
   }
 
   // todo add direct light
   return color;
 }
-
 std::pair<bool, Intersection> RayTracer::ClosestIntersection(Ray &ray,
                                                              BasicMesh &mesh) {
   Intersection closest{};
@@ -121,7 +129,8 @@ std::pair<bool, Intersection> RayTracer::ClosestIntersection(Ray &ray,
 
   for (int mesh_idx = 0; mesh_idx < mesh.meshes_.size(); ++mesh_idx) {
     auto &sub_mesh_entry = mesh.meshes_[mesh_idx];
-    for (int i = sub_mesh_entry.base_index; i < sub_mesh_entry.indices_count_;
+    for (int i = sub_mesh_entry.base_index;
+         i < sub_mesh_entry.base_index + sub_mesh_entry.indices_count_;
          i += 3) {
       Intersection intersection{};
 
@@ -129,11 +138,9 @@ std::pair<bool, Intersection> RayTracer::ClosestIntersection(Ray &ray,
       uint32_t index1 = mesh.indices_[i + 1];
       uint32_t index2 = mesh.indices_[i + 2];
 
-      // 2. 找到三角形的实际顶点位置 (相对于全局 vertices_ 数组)
-      // 这里的索引必须是全局索引
-      auto &v0 = mesh.vertices_[sub_mesh_entry.base_vertex_ + index0].position_;
-      auto &v1 = mesh.vertices_[sub_mesh_entry.base_vertex_ + index1].position_;
-      auto &v2 = mesh.vertices_[sub_mesh_entry.base_vertex_ + index2].position_;
+      auto &v0 = mesh.vertices_[index0].position_;
+      auto &v1 = mesh.vertices_[index1].position_;
+      auto &v2 = mesh.vertices_[index2].position_;
 
       auto edge_1 = v1 - v0;
       auto edge_2 = v2 - v0;
@@ -169,13 +176,6 @@ std::pair<bool, Intersection> RayTracer::ClosestIntersection(Ray &ray,
       intersection.t_ = t;
       intersection.position_ = ray.origin_ + t * ray.direction_;
 
-      if (max_z < intersection.position_.z) {
-        max_z = intersection.position_.z;
-      }
-      if (min_z > intersection.position_.z) {
-        min_z = intersection.position_.z;
-      }
-
       if (intersection.t_ < closest.t_) {
         closest = intersection;
         found = true;
@@ -184,6 +184,7 @@ std::pair<bool, Intersection> RayTracer::ClosestIntersection(Ray &ray,
   }
   return std::make_pair(found, closest);
 }
+
 glm::vec3 RayTracer::CalcDirectLight(const Intersection &intersection,
                                      const BasicMesh &mesh) {
   glm::vec3 light_direction =

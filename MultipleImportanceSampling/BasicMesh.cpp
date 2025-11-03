@@ -1,4 +1,4 @@
-#include "BasicMesh.h"
+﻿#include "BasicMesh.h"
 bool BasicMesh::InitFromScene(const aiScene &scene) {
   meshes_.resize(scene.mNumMeshes);
   materials_.resize(scene.mNumMaterials);
@@ -13,8 +13,8 @@ bool BasicMesh::InitFromScene(const aiScene &scene) {
   return true;
 }
 
-std::pair<uint32_t, uint32_t>
-BasicMesh::CountVerticesAndIndices(const aiScene &scene) {
+std::pair<uint32_t, uint32_t> BasicMesh::CountVerticesAndIndices(
+    const aiScene &scene) {
   uint32_t vertex_count = 0;
   uint32_t index_count = 0;
   for (int i = 0; i < scene.mNumMeshes; i++) {
@@ -51,18 +51,22 @@ void BasicMesh::InitSingleMesh(uint32_t mesh_index, const aiMesh &ai_mesh) {
     }
     vertices_.push_back(vert);
   }
+
+  const uint32_t current_base_vertex = meshes_[mesh_index].base_vertex_;
+
   for (auto i = 0; i < ai_mesh.mNumFaces; i++) {
     const auto &face = ai_mesh.mFaces[i];
     if (face.mNumIndices != 3) {
-      PrintWarn("Face with %d indices is not supported!\n", face.mNumIndices);
       continue;
     }
 
-    indices_.push_back(face.mIndices[0]);
-    indices_.push_back(face.mIndices[1]);
-    indices_.push_back(face.mIndices[2]);
+    for (uint32_t j = 0; j < 3; j++) {
+      uint32_t local_index = face.mIndices[j];
+      indices_.push_back(current_base_vertex + local_index);
+    }
   }
 }
+
 void BasicMesh::InitMaterials(const aiScene &scene) {
   for (int i = 0; i < scene.mNumMaterials; i++) {
     auto material = scene.mMaterials[i];
@@ -102,8 +106,9 @@ void BasicMesh::InitMaterials(const aiScene &scene) {
                                      emissive_color.b, 1.f};
     materials_[i].name_ = material->GetName().data;
 
-    brdfs_[i] = BRDF({diffuse_color.r, diffuse_color.g, diffuse_color.b},
-                     {specular_color.r, specular_color.g, specular_color.b}, 1.f);
+    brdfs_[i] =
+        BRDF({diffuse_color.r, diffuse_color.g, diffuse_color.b},
+             {specular_color.r, specular_color.g, specular_color.b}, 1.f);
   }
 }
 void BasicMesh::NormalizeVertices() {
@@ -114,7 +119,7 @@ void BasicMesh::NormalizeVertices() {
         std::max(std::abs(pos.x), std::max(std::abs(pos.y), std::abs(pos.z)));
     max = std::max(max, max_pos);
   }
-  Scale(1/max);
+  Scale(1 / max);
 }
 
 void BasicMesh::Scale(float scale) {
@@ -128,7 +133,6 @@ void BasicMesh::Translate(glm::vec3 offset) {
     vert.position_ += offset;
   }
 }
-
 
 void BasicMesh::Rotate(float deg) {
   float radians = glm::radians(deg);

@@ -71,9 +71,13 @@ glm::vec3 GetRandomDirection(const glm::vec3 &normal) {
 
   return x * u + y * v + z * w;
 }
-int GetIndex(float x, float y, int width, int height) {
+int GetIndex(float x, float y, int width, int height, bool reverse_y) {
   auto _x = std::clamp((int)x, 0, width - 1);
   auto _y = std::clamp((int)y, 0, height - 1);
+
+  if (reverse_y) {
+    _y = height - _y - 1;
+  }
 
   return static_cast<int>(_x * height + _y);
 }

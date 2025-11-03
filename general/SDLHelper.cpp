@@ -1,8 +1,9 @@
 #include "SDLHelper.h"
 
+#include <vector>
+
 #include "../general/Tools.h"
 #include "SDL3/SDL_video.h"
-#include <vector>
 
 SDL_Surface *InitializeSDL(int width, int height, SDL_Window *&out_window) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -52,7 +53,8 @@ void PutPixel(SDL_Surface *surface, int x, int y, const vec3 &color) {
 }
 
 void PutPixelPatch(SDL_Surface *surface, int width, int height,
-                   const std::vector<glm::vec3> &pixels, SDL_Window *window) {
+                   const std::vector<glm::vec3> &pixels, SDL_Window *window,
+                   bool flip_y) {
   if (SDL_MUSTLOCK(surface)) {
     SDL_LockSurface(surface);
   }
@@ -66,7 +68,12 @@ void PutPixelPatch(SDL_Surface *surface, int width, int height,
 
   for (int x = 0; x < width; ++x) {
     for (int y = 0; y < height; ++y) {
-      PutPixel(surface, x, y, pixels[GetIndex(x, y, width, height)]);
+      if (flip_y) {
+        PutPixel(surface, x, height - y - 1,
+                 pixels[GetIndex(x, y, width, height)]);
+      } else {
+        PutPixel(surface, x, y, pixels[GetIndex(x, y, width, height)]);
+      }
     }
   }
 
