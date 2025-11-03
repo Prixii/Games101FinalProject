@@ -25,7 +25,50 @@ BRDFSample BRDF::SampleBRDF(glm::vec3 &n, glm::vec3 &wo, SampleMethod method) {
 BRDFSample BRDF::SampleBRDFImportanceSampling(glm::vec3 &n, glm::vec3 &wo) {
   BRDFSample sample{};
 
-  NOT_IMPLEMENTED
+  // specular
+  // 1. generate wi
+  auto a = (fabs(n.x) > 0.9f) ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0);
+  auto tan = glm::normalize(glm::cross(n, a));
+  auto bi_tan = glm::cross(n, tan);
+  auto tbn = glm::mat3(tan, bi_tan, n);
+
+  float r1 = GetRandomFloat();
+  float r2 = GetRandomFloat();
+
+  float phi = 2.f * PI * r1;
+  float a2 = roughness_ * roughness_;
+  float cos_theta = sqrt((1.0f - r2) / (1.0f + (a2 - 1.0f) * r2));
+  float sin_theta = sqrt(1.0f - cos_theta * cos_theta);
+
+  glm::vec3 h_local{cos(phi) * sin_theta, sin(phi) * sin_theta, cos_theta};
+  auto h = tbn * h_local;
+
+  glm::vec3 wi = glm::reflect(-wo, h);
+
+  if (glm::dot(wi, n) <= 0.f) {
+    // PrintErr("No! It's back\n");
+    sample.pdf_ = 1.f;
+    sample.brdf_color_ = glm::vec3(0.f);
+    sample.new_dir_ = wi;
+    return sample;
+  }
+
+  // 2
+  auto F = FresnelSchlick(glm::dot(wi, h));
+  auto D = DistributionGGX(n, h, roughness_);
+  auto G = GeometrySmith(n, wo, wi, roughness_);
+  auto f_specular = (F * G * D) / (4.f * glm::dot(n, wi) * glm::dot(n, wo));
+
+  // diffuse
+  glm::vec3 f_diffuse = albedo_ / PI;
+
+  // calc pdf
+  float pdf = (D * glm::dot(n, h)) / (4.0f * glm::dot(wo, h));
+
+  // sample
+  sample.brdf_color_ = f_diffuse + f_specular;
+  sample.pdf_ = pdf;
+  sample.new_dir_ = wi;
 
   return sample;
 }

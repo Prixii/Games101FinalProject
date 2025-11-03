@@ -16,20 +16,27 @@ std::vector<glm::vec3> RayTracer::RayTracing(BasicMesh &mesh) {
   glm::vec3 right = glm::normalize(glm::cross(VIEW_DIR, CAMERA_UP));
   glm::vec3 up = glm::normalize(glm::cross(right, VIEW_DIR));
 
+  const int SPP = 16;
+
   const int update_interval = WINDOW_WIDTH / 100;
   for (int x = 0; x < WINDOW_WIDTH; x++) {
     if (x % update_interval == 0) {
       double percentage = x / (double)WINDOW_WIDTH * 100.f;
       printf("\rProgress: %.2f%%", percentage);
     }
-#pragma omp parallel num_threads(6)
-#pragma omp for
+#pragma omp parallel for collapse(2) schedule(dynamic)
     for (int y = 0; y < WINDOW_HEIGHT; y++) {
-      Ray ray = CreateRay(x, y, right, up);
+      glm::vec3 color(0.f);
 
-      glm::vec3 color;
+      for (int s = 0; s < SPP; ++s) {
+        float dx = GetRandomFloat() - 0.5f;
+        float dy = GetRandomFloat() - 0.5f;
 
-      color = TracePath(ray, mesh);
+        Ray ray = CreateRay(x + dx, y + dy, right, up);
+        color += TracePath(ray, mesh);
+      }
+
+      color /= SPP;
 
       pixels[GetIndex(x, y, WINDOW_WIDTH, WINDOW_HEIGHT)] = color;
     }
@@ -58,19 +65,13 @@ Ray RayTracer::CreateRay(int x, int y, glm::vec3 &right, glm::vec3 &up) {
 }
 
 glm::vec3 RayTracer::TracePath(Ray &ray, BasicMesh &mesh) {
-  glm::vec3 accumulated_radiance = glm::vec3(0.f); // 累积的辐射度
-  glm::vec3 path_throughput = glm::vec3(1.f);      // 路径吞吐量
+  glm::vec3 accumulated_radiance = glm::vec3(0.f);  // 累积的辐射度
+  glm::vec3 path_throughput = glm::vec3(1.f);       // 路径吞吐量
 
   Ray current_ray = ray;
   for (int bounce = 0; bounce < MAX_BOUNCES; bounce++) {
     auto [found, intersection] = ClosestIntersection(current_ray, mesh);
-
     if (!found) {
-      // 如果没有找到交点，光线射向天空，根据背景色贡献
-      // 对于间接光照，如果路径吞吐量还有效，则加上背景色。
-      // 在这个简化例子中，我们假设直接光照处理了所有发射项。
-      // 如果背景色是非零，可以这样处理：accumulated_radiance += path_throughput
-      // * BACKGROUND_COLOR;
       accumulated_radiance += path_throughput * BACKGROUND_COLOR;
       break;
     }
@@ -80,26 +81,16 @@ glm::vec3 RayTracer::TracePath(Ray &ray, BasicMesh &mesh) {
     auto &brdf = mesh.brdfs_[triangle.material_idx_];
     auto &material = mesh.materials_[triangle.material_idx_];
 
-    // 从交点看向相机/上一段光线的方向 (outgoing direction)
-    // 这里的 wo 应该是从表面指向观测者（或上一个散射点）的方向
-    glm::vec3 wo = -current_ray.direction_;
-
-    // --- 直接光照采样（如果需要）---
-    // 你可以考虑在这里添加一个显式的直接光照采样，例如采样光源。
-    // 如果 CalcDirectLight 只是一个环境光或固定方向光，那么可以像以前一样处理。
-    // 如果是显式光源采样，PDF 会很关键。
-
-    // 在这里添加直接光照的贡献，一次性完成，而不是在循环外 todo add direct
-    // light 假设 CalcDirectLight 返回的是该交点处接收到的直接光照强度
-    // 注意：这里的 CalcDirectLight 似乎是一个简化的模型，
-    // 它返回的值直接包含了颜色和Lambertian反射。
-    glm::vec3 direct_light_contribution = CalcDirectLight(intersection, mesh);
-    accumulated_radiance += path_throughput * direct_light_contribution;
+    if (material.IsLight()) {
+      // 如果是光源，直接返回，不再进行后续的光线追踪
+      accumulated_radiance += path_throughput * material.emissive_color_;
+      break;
+    }
 
     // --- 间接光照采样（BRDF 采样）---
-    // 使用 BRDF 采样得到一个新的方向 wi
-    BRDFSample brdf_sample =
-        brdf.SampleBRDF(intersection.normal_, wo, SampleMethod::LAMBERT);
+    glm::vec3 wo = -current_ray.direction_;
+    BRDFSample brdf_sample = brdf.SampleBRDF(intersection.normal_, wo,
+                                             SampleMethod::IMPORTANCE_SAMPLING);
 
     // 检查新的采样方向是否有效，例如是否指向法线半球内
     // IsVisible 函数在这里可能不是判断方向是否有效的最佳名称，
@@ -107,27 +98,23 @@ glm::vec3 RayTracer::TracePath(Ray &ray, BasicMesh &mesh) {
     float cos_theta_sampled =
         glm::dot(brdf_sample.new_dir_, intersection.normal_);
 
-    if (brdf_sample.pdf_ < EPSILON || cos_theta_sampled < EPSILON) {
+    if (brdf_sample.pdf_ < EPSILON) {
       // PDF为0或采样方向指向下方，说明采样无效，终止路径
       break;
     }
 
     // 更新路径吞吐量
-    // path_throughput = path_throughput * (BRDF_Value * cos_theta) / PDF
-    // brdf_sample.brdf_color_ 已经是 albedo * INV_PI
-    // cos_theta_sampled 是 dot(n, wi)
     path_throughput *=
         (brdf_sample.brdf_color_ * cos_theta_sampled) / brdf_sample.pdf_;
 
-    // 接下来检查俄罗斯轮盘赌
     // 只有在路径吞吐量仍然足够大时才继续
     float p = glm::max(path_throughput.x,
                        glm::max(path_throughput.y, path_throughput.z));
     if (bounce >= MIN_BOUNCES_FOR_RR) {
       if (RussianRoulette(p)) {
-        break; // 路径终止
+        break;
       }
-      path_throughput /= p; // 路径未终止，对吞吐量进行缩放
+      path_throughput /= p;
     }
 
     // 更新光线
@@ -138,17 +125,18 @@ glm::vec3 RayTracer::TracePath(Ray &ray, BasicMesh &mesh) {
   }
 
   accumulated_radiance =
-      glm::min(accumulated_radiance, glm::vec3(1.0f)); // Clamp to [0, 1] range
+      glm::min(accumulated_radiance, glm::vec3(1.0f));  // Clamp to [0, 1] range
   return accumulated_radiance;
 }
-std::pair<bool, Intersection>
-RayTracer::ClosestIntersection(Ray &ray, const BasicMesh &mesh) {
+
+std::pair<bool, Intersection> RayTracer::ClosestIntersection(
+    Ray &ray, const BasicMesh &mesh) {
   Intersection closest{};
   bool found = false;
 
   closest.t_ = std::numeric_limits<float>::max();
 
-  for (int mesh_idx = 0; mesh_idx < mesh.meshes_.size(); ++mesh_idx) {
+  for (int mesh_idx = 0; mesh_idx < mesh.meshes_.size(); mesh_idx++) {
     auto &sub_mesh_entry = mesh.meshes_[mesh_idx];
     for (int i = sub_mesh_entry.base_index;
          i < sub_mesh_entry.base_index + sub_mesh_entry.indices_count_;
@@ -216,12 +204,12 @@ glm::vec3 RayTracer::CalcDirectLight(const Intersection &intersection,
   glm::vec3 light_direction =
       glm::normalize(LIGHT_POS - intersection.position_);
   float light_distance = glm::distance(intersection.position_, LIGHT_POS);
-  glm::vec3 light_color = glm::vec3(15.f); // 假设光源强度
+  glm::vec3 light_color = glm::vec3(15.f);  // 假设光源强度
   // 衰减因子：1 / (distance^2)
   float attenuation = 1.0f / (light_distance * light_distance +
-                              EPSILON); // 加上EPSILON避免除以零
+                              EPSILON);  // 加上EPSILON避免除以零
 
-  glm::vec3 L_i = light_color * attenuation; // 入射光强度
+  glm::vec3 L_i = light_color * attenuation;  // 入射光强度
 
   // 获取材质的反照率 (Lambertian diffuse)
   auto &sub_mesh_entry = mesh.meshes_[intersection.mesh_index_];
@@ -243,7 +231,7 @@ glm::vec3 RayTracer::CalcDirectLight(const Intersection &intersection,
       ClosestIntersection(shadow_ray, mesh);
 
   if (shadow_hit && shadow_intersection.t_ < light_distance) {
-    return glm::vec3(0.0f); // 被遮挡，没有直接光照贡献
+    return glm::vec3(0.0f);  // 被遮挡，没有直接光照贡献
   }
 
   // 最终直接光照贡献 = 入射光强度 * BRDF * cos_theta_i

@@ -13,8 +13,8 @@ bool BasicMesh::InitFromScene(const aiScene &scene) {
   return true;
 }
 
-std::pair<uint32_t, uint32_t> BasicMesh::CountVerticesAndIndices(
-    const aiScene &scene) {
+std::pair<uint32_t, uint32_t>
+BasicMesh::CountVerticesAndIndices(const aiScene &scene) {
   uint32_t vertex_count = 0;
   uint32_t index_count = 0;
   for (int i = 0; i < scene.mNumMeshes; i++) {
@@ -103,7 +103,7 @@ void BasicMesh::InitMaterials(const aiScene &scene) {
     materials_[i].specular_color_ = {specular_color.r, specular_color.g,
                                      specular_color.b, 1.f};
     materials_[i].emissive_color_ = {emissive_color.r, emissive_color.g,
-                                     emissive_color.b, 1.f};
+                                     emissive_color.b};
     materials_[i].name_ = material->GetName().data;
 
     brdfs_[i] =

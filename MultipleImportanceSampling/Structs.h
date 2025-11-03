@@ -1,5 +1,6 @@
 #pragma once
 
+#include "MISConfig.h"
 #include <glm/glm.hpp>
 #include <string>
 
@@ -16,9 +17,13 @@ struct Material {
   glm::vec4 diffuse_color_;
   glm::vec4 ambient_color_;
   glm::vec4 specular_color_;
-  glm::vec4 emissive_color_;
+  glm::vec3 emissive_color_;
 
   Material() = default;
+
+  bool IsLight() const {
+    return glm::any(glm::greaterThan(emissive_color_, glm::vec3(EPSILON)));
+  }
 };
 
 struct BasicMeshEntry {
