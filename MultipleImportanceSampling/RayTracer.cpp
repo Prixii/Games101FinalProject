@@ -236,7 +236,7 @@ glm::vec3 RayTracer::CalcDirectLight(const Intersection &intersection,
       glm::max(glm::dot(intersection.normal_, light_direction), 0.0f);
 
   // 检查是否有物体遮挡光线 (阴影检测)
-  Ray shadow_ray;
+  Ray shadow_ray{};
   shadow_ray.origin_ = intersection.position_ + EPSILON * intersection.normal_;
   shadow_ray.direction_ = light_direction;
   auto [shadow_hit, shadow_intersection] =
