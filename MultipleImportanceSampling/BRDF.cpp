@@ -2,21 +2,19 @@
 #include "glm/ext/vector_float3.hpp"
 #include "glm/geometric.hpp"
 
-BRDFSample BRDF::SampleBRDF(glm::vec3 &n, glm::vec3 &wi, glm::vec3 &wo,
-                            SampleMethod method) {
+BRDFSample BRDF::SampleBRDF(glm::vec3 &n, glm::vec3 &wo, SampleMethod method) {
 
   auto n_ = glm::normalize(n);
-  auto wi_ = glm::normalize(wi);
   BRDFSample sample{};
   switch (method) {
   case SampleMethod::COMMON:
-    sample = SampleBRDFCommon(n_, wi_);
+    sample = SampleBRDFCommon(n_, wo);
     break;
   case SampleMethod::IMPORTANCE_SAMPLING:
-    sample = SampleBRDFImportanceSampling(n_, wi_);
+    sample = SampleBRDFImportanceSampling(n_, wo);
     break;
   case SampleMethod::LAMBERT:
-    sample = SampleLambertBRDF(n_, wi_);
+    sample = SampleLambertBRDF(n_, wo);
     break;
   default:
     PrintErr("Invalid Method\n");
@@ -24,7 +22,7 @@ BRDFSample BRDF::SampleBRDF(glm::vec3 &n, glm::vec3 &wi, glm::vec3 &wo,
   return sample;
 }
 
-BRDFSample BRDF::SampleBRDFImportanceSampling(glm::vec3 &n, glm::vec3 &wi) {
+BRDFSample BRDF::SampleBRDFImportanceSampling(glm::vec3 &n, glm::vec3 &wo) {
   BRDFSample sample{};
 
   NOT_IMPLEMENTED
@@ -32,7 +30,7 @@ BRDFSample BRDF::SampleBRDFImportanceSampling(glm::vec3 &n, glm::vec3 &wi) {
   return sample;
 }
 
-BRDFSample BRDF::SampleBRDFCommon(glm::vec3 &n, glm::vec3 &wi) {
+BRDFSample BRDF::SampleBRDFCommon(glm::vec3 &n, glm::vec3 &wo) {
   BRDFSample sample{};
 
   // 1. TBN
@@ -66,14 +64,14 @@ BRDFSample BRDF::SampleBRDFCommon(glm::vec3 &n, glm::vec3 &wi) {
 
   // 7. calc brdf
   auto lambert = std::max(glm::dot(n, l), 0.f);
-  sample.brdf_color_ = EvaluateBRDF(n, wi, l) * lambert;
+  sample.brdf_color_ = EvaluateBRDF(n, wo, l) * lambert;
 
-  auto nv = glm::dot(n, wi);
+  auto nv = glm::dot(n, wo);
   sample.brdf_color_ = glm::vec3(nv);
   return sample;
 }
 
-BRDFSample BRDF::SampleLambertBRDF(glm::vec3 &n, glm::vec3 &wi) {
+BRDFSample BRDF::SampleLambertBRDF(glm::vec3 &n, glm::vec3 &wo) const {
   BRDFSample sample{};
 
   auto a = (fabs(n.x) > 0.9f) ? glm::vec3(0, 1, 0) : glm::vec3(1, 0, 0);
@@ -90,9 +88,9 @@ BRDFSample BRDF::SampleLambertBRDF(glm::vec3 &n, glm::vec3 &wi) {
 
   glm::vec3 local_wi{cos(phi) * sin_theta, sin(phi) * sin_theta, cos_theta};
 
-  wi = tbn * local_wi;
+  auto wi = tbn * local_wi;
 
-  sample.new_dir_ = glm::vec3(0.f);
+  sample.new_dir_ = wi;
   sample.brdf_color_ = albedo_ * INV_PI;
   sample.pdf_ = glm::dot(n, wi) * INV_PI;
   return sample;

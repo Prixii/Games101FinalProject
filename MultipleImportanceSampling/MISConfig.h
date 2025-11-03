@@ -7,8 +7,8 @@ constexpr auto ASSIMP_FLAG =
     aiProcess_CalcTangentSpace | aiProcess_Triangulate |
     aiProcess_JoinIdenticalVertices | aiProcess_SortByPType;
 
-constexpr auto WINDOW_HEIGHT = 400;
-constexpr auto WINDOW_WIDTH = 400;
+constexpr auto WINDOW_HEIGHT = 800;
+constexpr auto WINDOW_WIDTH = 800;
 
 constexpr auto LIGHT_POS = glm::vec3(0.0f, 1.0f, -2.0f);
 constexpr auto CAMERA_POS = glm::vec3(0.0f, 0.0f, -3.0f);
@@ -16,10 +16,12 @@ constexpr auto CAMERA_UP = glm::vec3(0.f, 1.f, 0.f);
 constexpr auto VIEW_DIR = glm::vec3(0.f, 0.f, 1.f);
 constexpr float FOV_RAD = glm::radians(90.f);
 constexpr auto MAX_BOUNCES = 5;
+constexpr auto MIN_BOUNCES_FOR_RR =
+    3; // Minimum bounces before applying Russian Roulette
 
 constexpr auto EPSILON = 1e-6f;
 
-constexpr auto BACKGROUND_COLOR = glm::vec3(0.f);
+constexpr auto BACKGROUND_COLOR = glm::vec3(0.1f);
 
 // BRDF
 constexpr int FRESNEL_POWER = 5;

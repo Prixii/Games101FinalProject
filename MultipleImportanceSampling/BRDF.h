@@ -40,13 +40,12 @@ public:
     f0_ = glm::mix(FRESNEL_F, albedo_, metallic_);
   }
 
-  BRDFSample SampleBRDF(glm::vec3 &n, glm::vec3 &wi, glm::vec3 &wo,
-                        SampleMethod method);
+  BRDFSample SampleBRDF(glm::vec3 &n, glm::vec3 &wo, SampleMethod method);
 
 private:
   BRDFSample SampleBRDFCommon(glm::vec3 &n_, glm::vec3 &v_);
   BRDFSample SampleBRDFImportanceSampling(glm::vec3 &n_, glm::vec3 &v_);
-  BRDFSample SampleLambertBRDF(glm::vec3 &n_, glm::vec3 &v_);
+  BRDFSample SampleLambertBRDF(glm::vec3 &n_, glm::vec3 &v_) const;
 
   glm::vec3 EvaluateBRDF(glm::vec3 n, glm::vec3 v, glm::vec3 l);
 

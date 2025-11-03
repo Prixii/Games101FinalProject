@@ -82,6 +82,6 @@ int GetIndex(float x, float y, int width, int height, bool reverse_y) {
   return static_cast<int>(_x * height + _y);
 }
 bool RussianRoulette(float probability) {
-  return GetRandomFloat() < probability;
+  return GetRandomFloat() > probability;
 }
 bool IsVisible(glm::vec3 &v1, glm::vec3 &v2) { return glm::dot(v1, v2) > 0.0f; }

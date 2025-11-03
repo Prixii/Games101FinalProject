@@ -32,7 +32,7 @@ private:
 
   glm::vec3 TracePath(Ray &ray, BasicMesh &mesh);
 
-  std::pair<bool, Intersection> ClosestIntersection(Ray &ray, BasicMesh &mesh);
+  std::pair<bool, Intersection> ClosestIntersection(Ray &ray, const BasicMesh &mesh);
 
   glm::vec3 CalcDirectLight(const Intersection &intersection,
                             const BasicMesh &mesh);
