@@ -39,6 +39,7 @@ public:
 
     f0_ = glm::mix(FRESNEL_F, albedo_, metallic_);
   }
+  glm::vec3 EvaluateBRDF(glm::vec3 n, glm::vec3 v, glm::vec3 l);
 
   BRDFSample SampleBRDF(glm::vec3 &n, glm::vec3 &wo, SampleMethod method);
 
@@ -47,7 +48,6 @@ private:
   BRDFSample SampleBRDFImportanceSampling(glm::vec3 &n_, glm::vec3 &v_);
   BRDFSample SampleLambertBRDF(glm::vec3 &n_, glm::vec3 &v_) const;
 
-  glm::vec3 EvaluateBRDF(glm::vec3 n, glm::vec3 v, glm::vec3 l);
 
   glm::vec3 FresnelSchlick(float cos_theta, glm::vec3 f_0 = FRESNEL_F);
 

@@ -4,6 +4,7 @@
 
 #include "BRDF.h"
 #include "MISConfig.h"
+#include "Ray.h"
 #include "glm/ext/vector_float3.hpp"
 #include "glm/ext/vector_float4.hpp"
 #include "glm/geometric.hpp"
@@ -16,7 +17,7 @@ std::vector<glm::vec3> RayTracer::RayTracing(BasicMesh &mesh) {
   glm::vec3 right = glm::normalize(glm::cross(VIEW_DIR, CAMERA_UP));
   glm::vec3 up = glm::normalize(glm::cross(right, VIEW_DIR));
 
-  const int SPP = 16;
+  const int SPP = 32;
 
   const int update_interval = WINDOW_WIDTH / 100;
   for (int x = 0; x < WINDOW_WIDTH; x++) {
@@ -38,7 +39,19 @@ std::vector<glm::vec3> RayTracer::RayTracing(BasicMesh &mesh) {
 
       color /= SPP;
 
-      pixels[GetIndex(x, y, WINDOW_WIDTH, WINDOW_HEIGHT)] = color;
+      const float INV_GAMMA = 1.0f / 2.2f;  // 约 0.4545
+
+      glm::vec3 color_gamma;
+      color_gamma.r = glm::pow(color.r, INV_GAMMA);
+      color_gamma.g = glm::pow(color.g, INV_GAMMA);
+      color_gamma.b = glm::pow(color.b, INV_GAMMA);
+
+      // 2. **可选的 Clamp** (如果TracePath末尾没有)
+      // 确保颜色在 [0, 1] 范围内
+      color_gamma = glm::min(color_gamma, glm::vec3(1.0f));
+
+      // 3. 写入像素数组
+      pixels[GetIndex(x, y, WINDOW_WIDTH, WINDOW_HEIGHT)] = color_gamma;
     }
   }
   printf("\n");
@@ -115,6 +128,50 @@ glm::vec3 RayTracer::TracePath(Ray &ray, BasicMesh &mesh) {
         break;
       }
       path_throughput /= p;
+    }
+
+    // calc NEE
+    {
+      auto nee_contribution = glm::vec3(0.0f);
+
+      auto light_mesh_idx = mesh.light_indices_[0];
+      auto &light_mesh = mesh.meshes_[light_mesh_idx];
+      auto rand_face_idx = GetRandomInt(0, light_mesh.FaceCount() - 1);
+
+      auto start_idx = light_mesh.GetStartIndexOfFace(rand_face_idx);
+      auto &v1 = mesh.vertices_[mesh.indices_[start_idx]];
+      auto &v2 = mesh.vertices_[mesh.indices_[start_idx + 1]];
+      auto &v3 = mesh.vertices_[mesh.indices_[start_idx + 2]];
+
+      glm::vec3 rand_face_pos =
+          GetRandomPosInTriangle(v1.position_, v2.position_, v3.position_);
+
+      auto ray_to_light = Ray{intersection.position_, rand_face_pos};
+      auto [found, intersection_of_light] =
+          ClosestIntersection(ray_to_light, mesh);
+      if (found) {
+        if (intersection_of_light.mesh_index_ != light_mesh_idx) {
+          nee_contribution = glm::vec3(0.0f);
+        } else {
+          auto p_A =
+              1.f / GetAreaOfTriangle(v1.position_, v2.position_, v3.position_);
+          auto Le = mesh.materials_[light_mesh.material_idx_].emissive_color_;
+          float cos_i = glm::dot(intersection.normal_, ray_to_light.direction_);
+          float cos_l =
+              glm::dot(intersection_of_light.normal_, -ray_to_light.direction_);
+          glm::vec3 wo = -current_ray.direction_;
+          glm::vec3 fr = brdf.EvaluateBRDF(ray_to_light.direction_, wo,
+                                           intersection.normal_);
+          nee_contribution =
+              Le * fr * cos_i * cos_l /
+              (p_A * intersection.distance_ * intersection.distance_);
+          if (nee_contribution.x < 0 || nee_contribution.y < 0 ||
+              nee_contribution.z < 0) {
+            nee_contribution = glm::vec3(0.0f);
+          }
+          accumulated_radiance += path_throughput * nee_contribution ;
+        }
+      }
     }
 
     // 更新光线

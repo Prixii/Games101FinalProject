@@ -31,6 +31,11 @@ struct BasicMeshEntry {
   unsigned int base_vertex_ = -1;
   unsigned int base_index = -1;
   unsigned int material_idx_ = -1;
+
+  int FaceCount() const { return indices_count_ / 3; }
+  int GetStartIndexOfFace(int face_idx) const {
+    return base_index + face_idx * 3;
+  }
 };
 
 struct Intersection {

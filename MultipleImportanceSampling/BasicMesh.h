@@ -20,6 +20,7 @@ public:
   std::vector<Material> materials_;
   std::vector<BasicMeshEntry> meshes_;
   std::vector<BRDF> brdfs_;
+  std::vector<uint32_t> light_indices_;
 
   BasicMesh() = default;
 

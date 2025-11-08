@@ -8,8 +8,8 @@ bool BasicMesh::InitFromScene(const aiScene &scene) {
   vertices_.reserve(num_vertices);
   indices_.reserve(num_indices);
 
-  InitAllMeshes(scene);
   InitMaterials(scene);
+  InitAllMeshes(scene);
   return true;
 }
 
@@ -35,6 +35,13 @@ void BasicMesh::InitAllMeshes(const aiScene &scene) {
   for (auto i = 0; i < scene.mNumMeshes; i++) {
     auto mesh = scene.mMeshes[i];
     InitSingleMesh(i, *mesh);
+  }
+
+  for (int i = 0; i < meshes_.size(); i++) {
+    auto &mesh = meshes_[i];
+    if (materials_[mesh.material_idx_].IsLight()) {
+      light_indices_.push_back(i);
+    }
   }
 }
 

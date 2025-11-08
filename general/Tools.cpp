@@ -45,10 +45,15 @@ void PrintSuccess(const char *fmt, ...) {
   vprintf(fmt, args);
   va_end(args);
 }
+
+/// Get a random integer within the range [min, max]
+int GetRandomInt(int min, int max) { return min + rand() % (max - min + 1); }
+
 float GetRandomFloat(float min, float max) {
   return min + static_cast<float>(rand()) /
                    (static_cast<float>(RAND_MAX / (max - min)));
 }
+
 float GetSqrDist(const glm::vec3 a, const glm::vec3 b) {
   auto sqr_dist = 0.f;
   for (int i = 0; i < 3; i++) {
@@ -85,3 +90,20 @@ bool RussianRoulette(float probability) {
   return GetRandomFloat() > probability;
 }
 bool IsVisible(glm::vec3 &v1, glm::vec3 &v2) { return glm::dot(v1, v2) > 0.0f; }
+
+glm::vec3 GetRandomPosInTriangle(const glm::vec3 &v1, const glm::vec3 &v2,
+                                 const glm::vec3 &v3) {
+  float u = GetRandomFloat();
+  float v = GetRandomFloat();
+  if (u + v > 1.0f) {
+    u = 1.0f - u;
+    v = 1.0f - v;
+  }
+  glm::vec3 rand_face_pos = (1.0f - u - v) * v1 + u * v2 + v * v3;
+  return rand_face_pos;
+}
+float GetAreaOfTriangle(const glm::vec3 &v1, const glm::vec3 &v2,
+                        const glm::vec3 &v3) {
+  float area = 0.5f * glm::length(glm::cross(v2 - v1, v3 - v1));
+  return area;
+}
