@@ -27,11 +27,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EdgeCollapse.h" />
-    <ClInclude Include="Quadric.h" />
-    <ClInclude Include="Triangle.h" />
+    <ClInclude Include="Face.h" />
+    <ClInclude Include="HalfEdge.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="QemHelper.h" />
     <ClInclude Include="TypeAlias.h" />
     <ClInclude Include="Vertex.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Face.cpp" />
+    <ClCompile Include="HalfEdge.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="QemHelper.cpp" />
+    <ClCompile Include="Structs.h" />
+    <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

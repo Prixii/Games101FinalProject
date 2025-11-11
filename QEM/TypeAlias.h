@@ -1,6 +1,7 @@
 #pragma once
-struct VertexID {
-  int value;
+#include <utility>
+using VertexIndex = size_t;
+using HalfEdgeIndex = size_t;
+using FaceIndex = size_t;
 
-  int GetValue() const { return value; }
-};
+using EdgeKey = std::pair<VertexIndex, VertexIndex>;
