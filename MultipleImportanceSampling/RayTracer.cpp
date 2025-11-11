@@ -17,7 +17,7 @@ std::vector<glm::vec3> RayTracer::RayTracing(BasicMesh &mesh) {
   glm::vec3 right = glm::normalize(glm::cross(VIEW_DIR, CAMERA_UP));
   glm::vec3 up = glm::normalize(glm::cross(right, VIEW_DIR));
 
-  const int SPP = 32;
+  const int SPP = 1024;
 
   const int update_interval = WINDOW_WIDTH / 100;
   for (int x = 0; x < WINDOW_WIDTH; x++) {
@@ -25,7 +25,9 @@ std::vector<glm::vec3> RayTracer::RayTracing(BasicMesh &mesh) {
       double percentage = x / (double)WINDOW_WIDTH * 100.f;
       printf("\rProgress: %.2f%%", percentage);
     }
-#pragma omp parallel for collapse(2) schedule(dynamic)
+
+#pragma omp parallel num_threads(12)
+#pragma omp for
     for (int y = 0; y < WINDOW_HEIGHT; y++) {
       glm::vec3 color(0.f);
 
