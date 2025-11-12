@@ -33,6 +33,9 @@
     <ClInclude Include="QemHelper.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="QemConfig.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Model.cpp">

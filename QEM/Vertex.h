@@ -4,23 +4,20 @@
 #include "../general/Tools.h"
 #include "TypeAlias.h"
 class Vertex {
- public:
+public:
   glm::vec3 position_;
   HalfEdgeIndex start_half_edge_;
   int vertex_degree_;
+  bool is_deleted_;
 
   glm::vec3 new_position_;
 
   Vertex()
-      : position_(0, 0, 0),
-        start_half_edge_(-1),
-        vertex_degree_(0),
-        new_position_(0, 0, 0) {};
+      : position_(0, 0, 0), start_half_edge_(-1), vertex_degree_(0),
+        is_deleted_(false), new_position_(0, 0, 0) {};
   Vertex(glm::vec3 position_)
-      : position_(position_),
-        start_half_edge_(-1),
-        vertex_degree_(0),
-        new_position_(0, 0, 0) {};
+      : position_(position_), start_half_edge_(-1), vertex_degree_(0),
+        is_deleted_(false), new_position_(0, 0, 0) {};
 
   bool HasStartHalfEdge() const;
 

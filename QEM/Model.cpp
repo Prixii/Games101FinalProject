@@ -6,8 +6,7 @@
 #include <map>
 #include <string>
 
-
-void Model::InitFromObj(const char* filename) {
+void Model::InitFromObj(const char *filename) {
   std::fstream file(filename);
   std::string line;
   std::string s[MAX_FACE_DEGREE];
@@ -29,7 +28,6 @@ void Model::InitFromObj(const char* filename) {
   ParseHalfEdge();
 
   CheckParseHalfEdgeResult();
-
 }
 
 void Model::ParseHalfEdge() {
@@ -43,7 +41,7 @@ void Model::ParseHalfEdge() {
   std::map<EdgeKey, HalfEdgeIndex> edge_map;
   HalfEdgeIndex half_edge_index = 0;
   for (size_t face_ind = 0; face_ind < face_buffer_.size(); face_ind++) {
-    auto& vertex_loop = face_buffer_[face_ind];
+    auto &vertex_loop = face_buffer_[face_ind];
 
     HalfEdgeIndex prev_ind = -1;
     HalfEdgeIndex start_ind = half_edge_index;
@@ -59,7 +57,7 @@ void Model::ParseHalfEdge() {
       auto reverse_edge_key = EdgeKey(head_vertex_ind, half_edge.tail_);
       if (edge_map.count(reverse_edge_key)) {
         auto twin_index = edge_map[reverse_edge_key];
-        auto& twin_edge = half_edge_lib_[twin_index];
+        auto &twin_edge = half_edge_lib_[twin_index];
 
         twin_edge.twin_ = half_edge_index;
         half_edge.twin_ = twin_index;
@@ -76,7 +74,7 @@ void Model::ParseHalfEdge() {
       prev_ind = half_edge_index;
 
       // set start half edge for vertex
-      auto& vertex = vertex_lib_[vertex_loop[vert_ind]];
+      auto &vertex = vertex_lib_[vertex_loop[vert_ind]];
       if (!vertex.HasStartHalfEdge()) {
         vertex.start_half_edge_ = half_edge_index;
       }
@@ -93,17 +91,17 @@ void Model::ParseHalfEdge() {
     face_lib_.push_back(face_);
   }
 
-  for (auto& edge : half_edge_lib_) {
+  for (auto &edge : half_edge_lib_) {
     edge.Print();
   }
 
   // 3. calc vertex degree
-  for (auto& edge : half_edge_lib_) {
+  for (auto &edge : half_edge_lib_) {
     vertex_lib_[edge.tail_].vertex_degree_++;
   }
 }
 
-void Model::ReadVertex(std::istringstream& sin, std::string s[3]) {
+void Model::ReadVertex(std::istringstream &sin, std::string s[3]) {
   sin.ignore(2);
   glm::vec3 position_{};
   for (auto i = 0; i < 3; i++) {
@@ -115,7 +113,7 @@ void Model::ReadVertex(std::istringstream& sin, std::string s[3]) {
   vertex_buffer_.push_back(position_);
 }
 
-void Model::ReadFace(std::istringstream& sin) {
+void Model::ReadFace(std::istringstream &sin) {
   sin.ignore(2);
   std::string vertex_desc;
   std::vector<VertexIndex> face_v_indices;
@@ -130,7 +128,7 @@ void Model::ReadFace(std::istringstream& sin) {
 
       VertexIndex v_idx = obj_v_index - 1;
       face_v_indices.push_back(v_idx);
-    } catch (const std::invalid_argument& e) {
+    } catch (const std::invalid_argument &e) {
       PrintErr("invalid argument, %s\n", segment.c_str());
       break;
     }
@@ -146,7 +144,7 @@ void Model::PrintVertexAndFaces() {
   for (auto i = 0; i < face_buffer_.size(); i++) {
     PrintInfo("Face%d: ", i);
     for (auto j = 0; j < face_buffer_[i].size(); j++) {
-      printf("%d ", face_buffer_[i][j]);
+      printf("%lld ", face_buffer_[i][j]);
     }
     printf("\n");
   }
@@ -156,13 +154,13 @@ void Model::CheckParseHalfEdgeResult() {
   // check
   bool has_error = false;
 
-  // ¼ì²é Twin Ë«ÏòÒ»ÖÂĞÔ
+  // æ£€æŸ¥ Twin åŒå‘ä¸€è‡´æ€§
   for (size_t i = 0; i < half_edge_lib_.size(); ++i) {
-    HalfEdge& he_A = half_edge_lib_[i];
+    HalfEdge &he_A = half_edge_lib_[i];
     HalfEdgeIndex twin_idx = he_A.twin_;
 
     if (twin_idx == 0) {
-      // ÕâÊÇ±ß½ç±ß£¬Ìø¹ı Twin ¼ì²é
+      // è¿™æ˜¯è¾¹ç•Œè¾¹ï¼Œè·³è¿‡ Twin æ£€æŸ¥
       continue;
     }
 
@@ -172,9 +170,9 @@ void Model::CheckParseHalfEdgeResult() {
       continue;
     }
 
-    HalfEdge& he_B = half_edge_lib_[twin_idx];
+    HalfEdge &he_B = half_edge_lib_[twin_idx];
 
-    // 1. ¼ì²é¶Ô³ÆĞÔ£ºA µÄ twin_ ±ØĞëÊÇ B£¬B µÄ twin ±ØĞëÊÇ A
+    // 1. æ£€æŸ¥å¯¹ç§°æ€§ï¼šA çš„ twin_ å¿…é¡»æ˜¯ Bï¼ŒB çš„ twin å¿…é¡»æ˜¯ A
     if (he_B.twin_ != i) {
       PrintErr(
           "Error: HE %zu (tail_ %d) has twin_ %d, but twin_'s twin_ is %d (not "
@@ -183,13 +181,13 @@ void Model::CheckParseHalfEdgeResult() {
       has_error = true;
     }
 
-    // 2. ¼ì²é·½ÏòĞÔ£ºA µÄÆğµã±ØĞëÊÇ B µÄÖÕµã£¬·´Ö®ÒàÈ»
-    if (he_A.tail_ != he_B.next_) {  // ¼ÙÉèÄãÓĞÒ»¸ö»ñÈ¡Í·²¿¶¥µãµÄ¸¨Öúº¯Êı
-      // ×¢Òâ£ºÒòÎª half_edge Ã»ÓĞ head ÊôĞÔ£¬ĞèÒªÍ¨¹ı next ¹ØÏµ»ò twin
-      // ¹ØÏµ¼ä½ÓÅĞ¶Ï
+    // 2. æ£€æŸ¥æ–¹å‘æ€§ï¼šA çš„èµ·ç‚¹å¿…é¡»æ˜¯ B çš„ç»ˆç‚¹ï¼Œåä¹‹äº¦ç„¶
+    if (he_A.tail_ != he_B.next_) { // å‡è®¾ä½ æœ‰ä¸€ä¸ªè·å–å¤´éƒ¨é¡¶ç‚¹çš„è¾…åŠ©å‡½æ•°
+      // æ³¨æ„ï¼šå› ä¸º half_edge æ²¡æœ‰ head å±æ€§ï¼Œéœ€è¦é€šè¿‡ next å…³ç³»æˆ– twin
+      // å…³ç³»é—´æ¥åˆ¤æ–­
 
-      // ¼òµ¥ÅĞ¶Ï£ºA µÄ tail_ ±ØĞëµÈÓÚ B µÄ head
-      // B µÄ head ÊÇ B µÄ twin_ µÄ tail
+      // ç®€å•åˆ¤æ–­ï¼šA çš„ tail_ å¿…é¡»ç­‰äº B çš„ head
+      // B çš„ head æ˜¯ B çš„ twin_ çš„ tail
       if (he_A.tail_ != half_edge_lib_[he_B.next_].tail_) {
         PrintErr("Error: HE %zu and twin_ %d have inconsistent vertex tails.\n",
                  i, twin_idx);
@@ -203,16 +201,16 @@ void Model::CheckParseHalfEdgeResult() {
   }
 }
 
-
-void Model::UpdateTwin(std::vector<HalfEdge>& new_half_edge_lib) {
-  // ¿ÉÑ¡£¬ÔÚ±¾ÑùÀıÖĞÊµ¼Ê²»ĞèÒª
+void Model::UpdateTwin(std::vector<HalfEdge> &new_half_edge_lib) {
+  // å¯é€‰ï¼Œåœ¨æœ¬æ ·ä¾‹ä¸­å®é™…ä¸éœ€è¦
   std::map<EdgeKey, HalfEdgeIndex> twin_map;
   for (size_t edge_index = 0; edge_index < new_half_edge_lib.size();
        edge_index++) {
-    auto& edge = new_half_edge_lib[edge_index];
-    if (edge.HasTwin()) continue;
+    auto &edge = new_half_edge_lib[edge_index];
+    if (edge.HasTwin())
+      continue;
 
-    auto& next_edge = new_half_edge_lib[edge.next_];
+    auto &next_edge = new_half_edge_lib[edge.next_];
     EdgeKey reverse_key(next_edge.tail_, edge.tail_);
     if (twin_map.count(reverse_key)) {
       // find twin_
@@ -228,18 +226,18 @@ void Model::UpdateTwin(std::vector<HalfEdge>& new_half_edge_lib) {
   }
 }
 
-void Model::ReTopology(std::vector<HalfEdge>& new_half_edge_lib,
-                         std::vector<Face>& new_face_lib) {
+void Model::ReTopology(std::vector<HalfEdge> &new_half_edge_lib,
+                       std::vector<Face> &new_face_lib) {
   HalfEdgeIndex half_edge_count = 0;
   FaceIndex face_count = 0;
   for (size_t i = 0; i < face_lib_.size(); i++) {
-    auto& old_face = face_lib_[i];
+    auto &old_face = face_lib_[i];
     std::vector<VertexIndex> loop_vertex_indices;
 
     auto old_start_edge_index = old_face.start_half_edge_;
     auto old_current_edge_index = old_start_edge_index;
     do {
-      auto& current_edge = half_edge_lib_[old_current_edge_index];
+      auto &current_edge = half_edge_lib_[old_current_edge_index];
 
       loop_vertex_indices.push_back(current_edge.tail_);
       loop_vertex_indices.push_back(current_edge.new_vertex_);
@@ -247,7 +245,7 @@ void Model::ReTopology(std::vector<HalfEdge>& new_half_edge_lib,
       old_current_edge_index = current_edge.next_;
     } while (old_current_edge_index != old_start_edge_index);
 
-    auto& center_vertex_index = old_face.new_vertex_;
+    auto &center_vertex_index = old_face.new_vertex_;
     auto indices_size = loop_vertex_indices.size();
     for (size_t vertex_ind = 0; vertex_ind < indices_size; vertex_ind += 2) {
       auto v1_index = center_vertex_index,
@@ -291,37 +289,115 @@ void Model::ReTopology(std::vector<HalfEdge>& new_half_edge_lib,
   }
 }
 
-
-void Model::ExportToObj(const char* filename) {
-  // 1. ´´½¨ÎÄ¼şÊä³öÁ÷¶ÔÏó
+void Model::ExportToObj(const char *filename) {
+  // 1. åˆ›å»ºæ–‡ä»¶è¾“å‡ºæµå¯¹è±¡
   std::ofstream output_file(filename);
 
-  // 2. ¼ì²éÎÄ¼şÊÇ·ñ³É¹¦´ò¿ª
+  // 2. æ£€æŸ¥æ–‡ä»¶æ˜¯å¦æˆåŠŸæ‰“å¼€
   if (!output_file.is_open()) {
     std::cerr << "Error: Could not open file for writing: " << filename
               << std::endl;
     return;
   }
 
-  // Ğ´ÈëÎÄ¼şÍ·ĞÅÏ¢
+  // å†™å…¥æ–‡ä»¶å¤´ä¿¡æ¯
   output_file << "# OBJ file generated by Half-Edge Subdivider" << std::endl;
   output_file << "# Vertices: " << vertex_lib_.size() << std::endl;
 
-  // --- 3. Ğ´ÈëËùÓĞ¶¥µã (v) ---
-  for (const auto& vertex : vertex_lib_) {
-    // Ê¹ÓÃÎÄ¼şÁ÷µÄ << ÔËËã·û£¬¶ø²»ÊÇ printf
+  // --- 3. å†™å…¥æ‰€æœ‰é¡¶ç‚¹ (v) ---
+  for (const auto &vertex : vertex_lib_) {
+    // ä½¿ç”¨æ–‡ä»¶æµçš„ << è¿ç®—ç¬¦ï¼Œè€Œä¸æ˜¯ printf
     output_file << vertex.ToObjString();
   }
 
   output_file << "\n# Faces: " << face_lib_.size() << std::endl;
 
-  // --- 4. Ğ´ÈëËùÓĞÃæ (f) ---
-  for (const auto& face_ : face_lib_) {
-    // Ê¹ÓÃÎÄ¼şÁ÷µÄ << ÔËËã·û
+  // --- 4. å†™å…¥æ‰€æœ‰é¢ (f) ---
+  for (const auto &face_ : face_lib_) {
+    // ä½¿ç”¨æ–‡ä»¶æµçš„ << è¿ç®—ç¬¦
     output_file << face_.ToObjString(half_edge_lib_);
   }
 
-  // 5. ¹Ø±ÕÎÄ¼şÁ÷²¢È·ÈÏ³É¹¦
+  // 5. å…³é—­æ–‡ä»¶æµå¹¶ç¡®è®¤æˆåŠŸ
   output_file.close();
   std::cout << "Successfully exported OBJ file to: " << filename << std::endl;
+}
+
+std::vector<HalfEdge> Model::GetAdjacentHalfEdges(const Vertex &vertex) const {
+  auto init_edge_idx = vertex.start_half_edge_;
+  auto current_edge_idx = init_edge_idx;
+  std::vector<HalfEdge> edges;
+  do {
+    auto &edge = half_edge_lib_[current_edge_idx];
+    edges.push_back(edge);
+    current_edge_idx = half_edge_lib_[edge.twin_].next_;
+  } while (current_edge_idx != init_edge_idx);
+
+  return edges;
+}
+
+std::vector<Face> Model::GetAdjacentFaces(const Vertex &vertex) const {
+  std::vector<Face> faces;
+  for (const auto &edge : GetAdjacentHalfEdges(vertex)) {
+    faces.push_back(face_lib_[edge.face_]);
+  }
+  return faces;
+}
+std::vector<FaceIndex>
+
+Model::GetAdjacentFaceIndices(const Vertex &vertex) const {
+  std::vector<FaceIndex> face_indices;
+  for (const auto &edge : GetAdjacentHalfEdges(vertex)) {
+    face_indices.push_back(edge.face_);
+  }
+  return face_indices;
+}
+std::vector<VertexIndex>
+Model::GetAdjacentVertexIndices(const Vertex &vertex) const {
+  std::vector<VertexIndex> indices;
+  for (const auto &half_edge : GetAdjacentHalfEdges(vertex)) {
+    indices.push_back(half_edge_lib_[half_edge.twin_].tail_);
+  }
+  return indices;
+}
+std::vector<HalfEdgeIndex>
+Model::GetAdjacentHalfEdgeIndices(const Vertex &vertex) const {
+  auto init_edge_idx = vertex.start_half_edge_;
+  auto current_edge_idx = init_edge_idx;
+  std::vector<HalfEdgeIndex> edge_indices;
+  do {
+    edge_indices.push_back(current_edge_idx);
+
+    auto &edge = half_edge_lib_[current_edge_idx];
+    current_edge_idx = half_edge_lib_[edge.twin_].next_;
+  } while (current_edge_idx != init_edge_idx);
+
+  return edge_indices;
+}
+std::vector<FaceIndex>
+Model::GetAdjacentFaceIndices(const HalfEdge &edge) const {
+  std::vector<FaceIndex> face_indices;
+  face_indices.push_back(edge.face_);
+  if (edge.HasTwin()) {
+    face_indices.push_back(half_edge_lib_[edge.twin_].face_);
+  }
+  return face_indices;
+}
+Model::EdgeAndIndexVec Model::GetRingEdges(const HalfEdgeIndex &index) const {
+  auto edge = half_edge_lib_[index];
+  if (!edge.is_deleted_)
+    return {};
+
+  std::vector<HalfEdge> half_edges;
+  std::vector<HalfEdgeIndex> half_edge_indices;
+
+  auto current_edge_idx = index;
+  do {
+    half_edges.push_back(edge);
+    half_edge_indices.push_back(current_edge_idx);
+    current_edge_idx = edge.next_;
+    edge = half_edge_lib_[current_edge_idx];
+  } while (current_edge_idx != index);
+
+  return {half_edges, half_edge_indices};
 }

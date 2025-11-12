@@ -30,6 +30,7 @@
     <ClInclude Include="Face.h" />
     <ClInclude Include="HalfEdge.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="QemConfig.h" />
     <ClInclude Include="QemHelper.h" />
     <ClInclude Include="TypeAlias.h" />
     <ClInclude Include="Vertex.h" />
